@@ -1,6 +1,6 @@
 /** @param {import(".").NS } ns */
 export async function main(ns) {
-
+	//Automatic scanner & root/nuke script
 	var checkDataFile = "auto_serverscan_data.txt";
 	var targets = [];
 	ns.rm(checkDataFile);
