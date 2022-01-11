@@ -78,7 +78,7 @@ export async function main(ns) {
                             //Checks for maximum threads required. Security lowered 0.05 per 1 thread
                             var req_security_threads = Math.floor((ns.getServerSecurityLevel(targets[i]) - (ns.getServerMinSecurityLevel(targets[i]) + 10)) / 0.05);
                             req_security_threads++;
-                            if (numThreads > req_security_threads) {
+                            if (numThreads > req_security_threads && req_security_threads >= 1) {
                                 numThreads = req_security_threads
                             }
                             //ns.tprint("Executing weaken on " + targets[i] + " with threads: " + numThreads);
@@ -89,7 +89,7 @@ export async function main(ns) {
                         ia++;
                         if (ia == player_servers.length) {
                             ns.print("No available servers, wait...");
-                            await ns.sleep(60000);
+                            await ns.sleep(6000);
                             var player_servers = ns.getPurchasedServers();
                             ia = 0;
                         }
@@ -100,9 +100,11 @@ export async function main(ns) {
                 } else {
                     //Executes locally if no player servers have been purchased, reserving free RAM for other scripts
                     //Will not execute if too much RAM is in use (due to other processes)
+                    /**
                     if (ns.getServerUsedRam("home") < (ns.getServerMaxRam("home") * 0.6)) {
                         await TargetPhatServer();
                     }
+                    **/
                 }
             }
             else if (ns.getServerMoneyAvailable(targets[i]) < moneyCheck && player_hacking_lvl > server_hacking_lvl) {
@@ -118,14 +120,14 @@ export async function main(ns) {
 
                         numThreads = Math.floor((ps_MaxRam - ps_UsedRam) / ps_ScriptRam);
                         ns.print("Possible Threads: " + numThreads);
-                        if (numThreads >= 4) {
+                        if (numThreads >= 4 && ps_UsedRam < (ps_MaxRam * 0.8)) {
                             ns.exec("auto-grow.js", player_servers[ia], numThreads, targets[i]);
                             chk_loop = 0;
                         }
                         ia++;
                         if (ia == player_servers.length) {
                             ns.print("No available servers, wait...");
-                            await ns.sleep(60000);
+                            await ns.sleep(6000);
                             ia = 0;
                         }
                         await ns.sleep(250);
@@ -135,9 +137,11 @@ export async function main(ns) {
                 } else {
                     //Executes locally if no player servers have been purchased, reserving free RAM for other scripts
                     //Will not execute if too much RAM is in use (due to other processes)
+                    /**
                     if (ns.getServerUsedRam("home") < (ns.getServerMaxRam("home") * 0.6)) {
                         await TargetPhatServer();
                     }
+                    **/
                 }
             }
 
@@ -159,7 +163,12 @@ export async function main(ns) {
     while (true) {
         await PlayerServerCopies();
         await AutoTarget();
-        await ns.sleep(6000);
+        //Executes locally if no player servers have been purchased, reserving free RAM for other scripts
+        //Will not execute if too much RAM is in use (due to other processes)
+        if (ns.getServerUsedRam("home") < (ns.getServerMaxRam("home") * 0.6)) {
+            await TargetPhatServer();
+        }
+        await ns.sleep(150);
     }
 
 }
