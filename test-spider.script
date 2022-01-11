@@ -1,0 +1,79 @@
+//From VSC
+function prep(target) {
+    if (getServerRequiredHackingLevel(target) >
+        getHackingLevel()) {
+        return false;
+    }
+    if (hasRootAccess(target)) return true;
+    
+    function can(action) {
+        return fileExists(action + ".exe", "home");
+    }
+    
+    ports = 0;
+    if (can("brutessh")) { brutessh(target); ++ports; }
+    if (can("ftpcrack")) { ftpcrack(target); ++ports; }
+    if (can("relaysmtp")) { relaysmtp(target); ++ports; }
+    if (can("httpworm")) { httpworm(target); ++ports; }
+    if (can("sqlinject")) { sqlinject(target); ++ports; }
+    
+    if (ports >= getServerNumPortsRequired(target)) {
+        return nuke(target);    
+    } else {
+        return false;
+    }
+}
+spiderDataFile = "spider_data.txt";
+
+// Iterate over all the servers we can connect to. If we've never hacked
+// the server before, start our hack loops and add them to the spider data file.
+function spider() {
+    hosts = ["home"];
+    // Special case: we don't look at the darkweb, since it's not hackable, nor
+    // our purchased servers.
+    seen = ["darkweb"].concat(getPurchasedServers());
+    hacked = read(spiderDataFile).split("\n");
+    if (hacked.length == 1 && hacked[0] === "") hacked = [];
+    initialLength = hacked.length;
+    
+    while (hosts.length > 0) {
+        h = hosts.shift();
+
+        // We've already seen this host during this scan.
+        if (seen.indexOf(h) != -1) continue;
+        seen.push(h);
+        
+        print("host: " + h);
+        if (!prep(h)) {
+            print("cannot crack");
+            continue;
+        }
+        
+        if (h != "home" && hacked.indexOf(h) == -1) {
+            hacked.push(h);
+            //Checks possible threads available. Max Ram - Used Ram / RAM COST of 'hack-server.js'
+            numThreads = Math.floor((getServerMaxRam(h) - getServerUsedRam(h)) / 2.45);
+            //Only attempts to run if threads are higher than 0 (else error thrown)
+            if (numThreads > 0)
+            {
+                print("Hacking" + h);
+                //Copies & Executes Script on var 'h'
+                scp("hack-server.js", "home", h);
+                exec("hack-server.js", h, numThreads);
+            }
+        }
+        
+        hosts = hosts.concat(scan(h));
+    }
+    
+    write(spiderDataFile, hacked.join("\n"), "w");
+    //if (hacked.length != initialLength) signal();
+}
+
+sleep(1000);
+
+while (true) {
+    //rm(spiderDataFile);
+    spider();
+    sleep(60000);
+}
