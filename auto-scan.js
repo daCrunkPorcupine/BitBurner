@@ -6,6 +6,7 @@ export async function main(ns) {
 	ns.rm(checkDataFile);
 	await ns.write(checkDataFile, "n00dles", "w");
 
+	//Scanner for all servers
 	async function AutoScanner() {
 		var hosts = ["home"];
 		var seen = ["darkweb"].concat(ns.getPurchasedServers());
