@@ -2,6 +2,33 @@
 export async function main(ns) {
     var checkDataFile = ns.args[0];
 
+    //Scans for phat servers for priority
+    async function TargetPhatServer() {
+        var targets = ns.read(checkDataFile).split("\n");
+        //Gets array count -1
+        var targets_array = targets.length - 1;
+        var toptarget = 0;
+        var server_value = 0;
+    
+        for (var i = targets_array; i >= 0; i--) {
+            var player_hacking_lvl = ns.getHackingLevel();
+            var server_hacking_lvl = ns.getServerRequiredHackingLevel(targets[i]);
+            //Calculate a value (maxmoney * hackchance / weakentime)
+            server_value = ns.getServerMaxMoney(targets[i]) * ns.hackAnalyzeChance(targets[i]) / ns.getWeakenTime(targets[i]);
+            //ns.tprint("Server: " + targets[i] + "; Value: " + server_value);
+            //await ns.write(serverdata, targets[i] + "," + server_value + "\n", "a");
+            if (server_value > toptarget && player_hacking_lvl > server_hacking_lvl) {
+                var bestserver = targets[i];
+                toptarget = server_value;
+            }
+            await ns.sleep(100);
+        }
+        //ns.tprint("Best server: " + bestserver + "; with $: " + toptarget);
+        //var free_ram = Math.floor((ns.getServerMaxRam("home") - ns.getServerUsedRam("home")) * 0.8);
+        ns.exec("auto-phattarget.js", "home", 1,bestserver);
+        await ns.sleep(6000);
+        
+    }
     //Reads target list backwards
     async function AutoTarget() {
         var player_servers = ns.getPurchasedServers();
@@ -71,21 +98,10 @@ export async function main(ns) {
 
                     await ns.sleep(1000);
                 } else {
-                    //Executes locally if no player servers have been purchased, reserving 20% of free RAM for other scripts
-                    //ns.tprint(Math.floor(((ns.getServerMaxRam("home") - ns.getServerUsedRam("home")) * 0.8)) + " RAM Free (80% of available)");
-                    numThreads = Math.floor(((ns.getServerMaxRam("home") - ns.getServerUsedRam("home")) * 0.8) / ns.getScriptRam("auto-weaken.js"));
-                    //Checks for maximum threads required. Security lowered 0.05 per 1 thread
-                    var req_security_threads = Math.floor((ns.getServerSecurityLevel - (ns.getServerMinSecurityLevel(targets[i]) + 10)) * 0.05);
-                    if (numThreads > req_security_threads) {
-                        if (req_security_threads < 0){
-                            numThreads = 1;
-                        } else {numThreads = req_security_threads + 10}
-                    }
-                    ns.exec("auto-weaken.js", "home", numThreads, targets[i]);
-                    //ns.print("Checking if script is running:"+ns.isRunning("auto-weaken.js","home",server_target));
-                    while (ns.isRunning("auto-weaken.js", "home", targets[i]) == true) {
-                        ns.print("auto-weaken.js is running on " + targets[i] + "sleep");
-                        await ns.sleep(60000);
+                    //Executes locally if no player servers have been purchased, reserving free RAM for other scripts
+                    //Will not execute if too much RAM is in use (due to other processes)
+                    if (ns.getServerUsedRam("home") < (ns.getServerMaxRam("home") * 0.6)) {
+                        await TargetPhatServer();
                     }
                 }
             }
@@ -117,14 +133,10 @@ export async function main(ns) {
 
                     await ns.sleep(1000);
                 } else {
-                    //Executes locally if no player servers have been purchased, reserving 20% of free RAM for other scripts
-                    //ns.tprint(Math.floor(((ns.getServerMaxRam("home") - ns.getServerUsedRam("home")) * 0.8)) + " RAM Free (80% of available)");
-                    numThreads = Math.floor(((ns.getServerMaxRam("home") - ns.getServerUsedRam("home")) * 0.8) / ns.getScriptRam("auto-grow.js"));
-                    ns.exec("auto-grow.js", "home", numThreads, targets[i]);
-                    //ns.print("Checking if script is running:"+ns.isRunning("auto-grow.js","home",server_target));
-                    while (ns.isRunning("auto-grow.js", "home", targets[i]) == true) {
-                        ns.print("auto-grow.js is running on " + targets[i] + "sleep");
-                        await ns.sleep(60000);
+                    //Executes locally if no player servers have been purchased, reserving free RAM for other scripts
+                    //Will not execute if too much RAM is in use (due to other processes)
+                    if (ns.getServerUsedRam("home") < (ns.getServerMaxRam("home") * 0.6)) {
+                        await TargetPhatServer();
                     }
                 }
             }
@@ -142,6 +154,7 @@ export async function main(ns) {
             await ns.sleep(100);
         }
     }
+
 
     while (true) {
         await PlayerServerCopies();
