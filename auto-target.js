@@ -162,7 +162,7 @@ export async function main(ns) {
 
     while (true) {
         await PlayerServerCopies();
-        if (ns.getPurchasedServers() > 0) {
+        if (ns.getPurchasedServers().length > 0) {
             await AutoTarget();
         }
         //Executes locally if no player servers have been purchased, reserving free RAM for other scripts
