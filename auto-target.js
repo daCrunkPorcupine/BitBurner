@@ -6,7 +6,7 @@ export async function main(ns) {
     async function TargetPhatServer() {
         var targets = ns.read(checkDataFile).split("\n");
         //Gets array count
-        var targets_array = targets.length;
+        var targets_array = targets.length - 1;
         var toptarget = 0;
         var server_value = 0;
     
@@ -34,7 +34,7 @@ export async function main(ns) {
         var player_servers = ns.getPurchasedServers();
         var targets = ns.read(checkDataFile).split("\n");
         //Gets array count
-        var targets_array = targets.length;
+        var targets_array = targets.length - 1;
         var numThreads = 1;
 
 
