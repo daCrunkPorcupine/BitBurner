@@ -23,7 +23,7 @@ export async function main(ns) {
 				var player_hacking_lvl = ns.getHackingLevel();
 				var server_hacking_lvl = ns.getServerRequiredHackingLevel(h);
 				//ns.tprint("Checking for root on " + h);
-				if (ns.hasRootAccess(h) == false && player_hacking_lvl > server_hacking_lvl) {
+				if (ns.hasRootAccess(h) == false && player_hacking_lvl >= server_hacking_lvl) {
 					//Run hack script attempting to root
 					//ns.tprint("NO ROOT! Executing auto-root.js")
 					ns.exec("auto-root.js", "home", 1, h)
