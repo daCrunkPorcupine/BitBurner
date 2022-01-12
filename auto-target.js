@@ -5,8 +5,8 @@ export async function main(ns) {
     //Scans for phat servers for priority
     async function TargetPhatServer() {
         var targets = ns.read(checkDataFile).split("\n");
-        //Gets array count -1
-        var targets_array = targets.length - 1;
+        //Gets array count
+        var targets_array = targets.length;
         var toptarget = 0;
         var server_value = 0;
     
@@ -33,8 +33,8 @@ export async function main(ns) {
     async function AutoTarget() {
         var player_servers = ns.getPurchasedServers();
         var targets = ns.read(checkDataFile).split("\n");
-        //Gets array count -1
-        var targets_array = targets.length - 1;
+        //Gets array count
+        var targets_array = targets.length;
         var numThreads = 1;
 
 
@@ -74,7 +74,7 @@ export async function main(ns) {
 
                         numThreads = Math.floor((ps_MaxRam - ps_UsedRam) / ps_ScriptRam);
                         ns.print("Possible Threads: " + numThreads);
-                        if (numThreads >= 5) {
+                        if (numThreads >= 1) {
                             //Checks for maximum threads required. Security lowered 0.05 per 1 thread
                             var req_security_threads = Math.floor((ns.getServerSecurityLevel(targets[i]) - (ns.getServerMinSecurityLevel(targets[i]) + 10)) / 0.05);
                             req_security_threads++;
@@ -120,7 +120,7 @@ export async function main(ns) {
 
                         numThreads = Math.floor((ps_MaxRam - ps_UsedRam) / ps_ScriptRam);
                         ns.print("Possible Threads: " + numThreads);
-                        if (numThreads >= 4 && ps_UsedRam < (ps_MaxRam * 0.8)) {
+                        if (numThreads >= 1 && ps_UsedRam < (ps_MaxRam * 0.8)) {
                             ns.exec("auto-grow.js", player_servers[ia], numThreads, targets[i]);
                             chk_loop = 0;
                         }
