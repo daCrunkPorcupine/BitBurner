@@ -16,7 +16,12 @@ export async function main(ns) {
 
         if (ns.getServerSecurityLevel(target) > securityCheck) {
             //Checks numThreads based on Free RAM * 80%
-            numThreads = Math.floor((ns.getServerMaxRam("home") - ns.getServerUsedRam("home")) * 0.8) / ns.getScriptRam("auto-weaken.js");
+            if (ns.getServerMaxRam("home") >= 64) {
+                numThreads = Math.floor((ns.getServerMaxRam("home") - ns.getServerUsedRam("home")) * 0.8) / ns.getScriptRam("auto-weaken.js");
+            } else if (ns.getServerMaxRam("home") < 64) {
+                numThreads = Math.floor((ns.getServerMaxRam("home") - ns.getServerUsedRam("home")) * 0.6) / ns.getScriptRam("auto-weaken.js");
+            }
+            
             if (numThreads >= 1) {
                 ns.exec("auto-weaken.js", "home", numThreads, target);
             }
