@@ -35,7 +35,12 @@ export async function main(ns) {
         var player_servers = ns.getPurchasedServers();
         var targets = ns.read(checkDataFile).split("\n");
         //Gets array count
-        var targets_array = targets.length - 1;
+        if (targets.length == 1) {
+            var targets_array = 1;
+        } else {
+            var targets_array = targets.length - 1;
+        }
+        
         var numThreads = 1;
 
 
