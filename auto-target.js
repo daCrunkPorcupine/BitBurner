@@ -1,7 +1,8 @@
 /** @param {import(".").NS } ns */
 export async function main(ns) {
     var checkDataFile = ns.args[0];
-
+    //RAM usage limit for calling individual targets
+    var ram_homereserve = 0.6;
     //Scans for phat servers for priority
     async function TargetPhatServer() {
         var targets = ns.read(checkDataFile).split("\n");
@@ -38,7 +39,7 @@ export async function main(ns) {
         var numThreads = 1;
 
 
-        ns.print("Player Servers: " + player_servers);
+        //ns.print("Player Servers: " + player_servers);
         for (var i = targets_array; i >= 0; i--) {
             var chk_loop = 1;
             //ns.print(targets[i]);
@@ -90,6 +91,7 @@ export async function main(ns) {
                         if (ia == player_servers.length) {
                             ns.print("No available servers, wait...");
                             await ns.sleep(6000);
+                            if (ns.getServerUsedRam("home") < (ns.getServerMaxRam("home") * ram_homereserve)) { break }
                             var player_servers = ns.getPurchasedServers();
                             ia = 0;
                         }
@@ -97,14 +99,6 @@ export async function main(ns) {
                     }
 
                     await ns.sleep(1000);
-                } else {
-                    //Executes locally if no player servers have been purchased, reserving free RAM for other scripts
-                    //Will not execute if too much RAM is in use (due to other processes)
-                    /**
-                    if (ns.getServerUsedRam("home") < (ns.getServerMaxRam("home") * 0.6)) {
-                        await TargetPhatServer();
-                    }
-                    **/
                 }
             }
             else if (ns.getServerMoneyAvailable(targets[i]) < moneyCheck && player_hacking_lvl > server_hacking_lvl) {
@@ -128,20 +122,13 @@ export async function main(ns) {
                         if (ia == player_servers.length) {
                             ns.print("No available servers, wait...");
                             await ns.sleep(6000);
+                            if (ns.getServerUsedRam("home") < (ns.getServerMaxRam("home") * ram_homereserve)) { break }
                             ia = 0;
                         }
                         await ns.sleep(250);
                     }
 
                     await ns.sleep(1000);
-                } else {
-                    //Executes locally if no player servers have been purchased, reserving free RAM for other scripts
-                    //Will not execute if too much RAM is in use (due to other processes)
-                    /**
-                    if (ns.getServerUsedRam("home") < (ns.getServerMaxRam("home") * 0.6)) {
-                        await TargetPhatServer();
-                    }
-                    **/
                 }
             }
 
@@ -162,14 +149,17 @@ export async function main(ns) {
 
     while (true) {
         await PlayerServerCopies();
+        //Executes locally if no player servers have been purchased, reserving free RAM for other scripts
+        //Will not execute if too much RAM is in use (due to other processes)
+        if (ns.getServerUsedRam("home") < (ns.getServerMaxRam("home") * ram_homereserve)) {
+            await TargetPhatServer();
+        }
+        await ns.sleep(150);
         if (ns.getPurchasedServers().length > 0) {
             await AutoTarget();
         }
-        //Executes locally if no player servers have been purchased, reserving free RAM for other scripts
-        //Will not execute if too much RAM is in use (due to other processes)
-        if (ns.getServerUsedRam("home") < (ns.getServerMaxRam("home") * 0.6)) {
-            await TargetPhatServer();
-        }
+
+
         await ns.sleep(150);
     }
 
