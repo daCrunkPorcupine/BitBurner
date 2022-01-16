@@ -22,7 +22,7 @@ export async function main(ns) {
             server_value = ns.getServerMaxMoney(targets[i]) * ns.hackAnalyzeChance(targets[i]) / ns.getWeakenTime(targets[i]);
             //ns.tprint("Server: " + targets[i] + "; Value: " + server_value);
             //await ns.write(serverdata, targets[i] + "," + server_value + "\n", "a");
-            if (server_value > toptarget && player_hacking_lvl > server_hacking_lvl) {
+            if (server_value > toptarget && player_hacking_lvl >= server_hacking_lvl) {
                 var bestserver = targets[i];
                 toptarget = server_value;
             }
@@ -70,7 +70,7 @@ export async function main(ns) {
 
 
             // if security > minimum + 10 then weaken (pushed to player servers if exist)
-            if (ns.getServerSecurityLevel(targets[i]) > securityCheck && player_hacking_lvl > server_hacking_lvl) {
+            if (ns.getServerSecurityLevel(targets[i]) > securityCheck && player_hacking_lvl >= server_hacking_lvl) {
                 //If security level is higher than 'securityCheck' threshold, weaken
                 if (player_servers.length != 0) {
                     //ns.print("Player Server Count: " + player_servers.length)
@@ -110,7 +110,7 @@ export async function main(ns) {
                     await ns.sleep(1000);
                 }
             }
-            else if (ns.getServerMoneyAvailable(targets[i]) < moneyCheck && player_hacking_lvl > server_hacking_lvl) {
+            else if (ns.getServerMoneyAvailable(targets[i]) < moneyCheck && player_hacking_lvl >= server_hacking_lvl) {
                 if (player_servers.length != 0) {
                     //ns.print("Player Server Count: " + player_servers.length)
                     var ia = 0;
