@@ -15,8 +15,10 @@ export async function main(ns) {
     while (ns.getServerSecurityLevel(target) > securityCheck || ns.getServerMoneyAvailable(target) < moneyCheck) {
 
         if (ns.getServerSecurityLevel(target) > securityCheck) {
-            //Checks numThreads based on Free RAM * 80%
-            if (ns.getServerMaxRam("home") >= 64) {
+            //Checks numThreads based on Free RAM based on home MAX
+            if (ns.getServerMaxRam("home") >= 256) {
+                numThreads = Math.floor((ns.getServerMaxRam("home") - ns.getServerUsedRam("home")) * 0.92) / ns.getScriptRam("auto-weaken.js");
+            } else if (ns.getServerMaxRam("home") >= 64) {
                 numThreads = Math.floor((ns.getServerMaxRam("home") - ns.getServerUsedRam("home")) * 0.8) / ns.getScriptRam("auto-weaken.js");
             } else if (ns.getServerMaxRam("home") < 64) {
                 numThreads = Math.floor((ns.getServerMaxRam("home") - ns.getServerUsedRam("home")) * 0.6) / ns.getScriptRam("auto-weaken.js");
@@ -33,11 +35,13 @@ export async function main(ns) {
             }
         }
         else if (ns.getServerMoneyAvailable(target) < moneyCheck) {
-            //Checks numThreads based on Free RAM * 80%
-            if (ns.getServerMaxRam("home") >= 64) {
+            //Checks numThreads based on Free RAM based on home MAX
+            if (ns.getServerMaxRam("home") >= 256) {
+                numThreads = Math.floor((ns.getServerMaxRam("home") - ns.getServerUsedRam("home")) * 0.92) / ns.getScriptRam("auto-grow.js");
+            } else if (ns.getServerMaxRam("home") >= 64) {
                 numThreads = Math.floor((ns.getServerMaxRam("home") - ns.getServerUsedRam("home")) * 0.8) / ns.getScriptRam("auto-grow.js");
             } else if (ns.getServerMaxRam("home") < 64) {
-                numThreads = Math.floor((ns.getServerMaxRam("home") - ns.getServerUsedRam("home")) * 0.6) / ns.getScriptRam("auto-weaken.js");
+                numThreads = Math.floor((ns.getServerMaxRam("home") - ns.getServerUsedRam("home")) * 0.6) / ns.getScriptRam("auto-grow.js");
             }
             
             if (numThreads >= 1) {
