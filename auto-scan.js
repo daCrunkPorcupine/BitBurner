@@ -27,8 +27,10 @@ export async function main(ns) {
 					//Run hack script attempting to root
 					//ns.tprint("NO ROOT! Executing auto-root.js")
 					ns.exec("auto-root.js", "home", 1, h);
-					targets.push(h);
-				} else if (h != "home" && ns.hasRootAccess(h) == true) {
+					//targets.push(h);
+				}
+				await ns.sleep(100);
+				if (h != "home" && ns.hasRootAccess(h) == true) {
 					//
 					targets.push(h);
 				}
