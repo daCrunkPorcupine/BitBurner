@@ -99,8 +99,8 @@ export async function main(ns) {
                         ia++;
                         if (ia == player_servers.length) {
                             ns.print("No available servers, wait...");
-                            await ns.sleep(6000);
-                            if (ns.getServerUsedRam("home") < (ns.getServerMaxRam("home") * ram_homereserve)) { break }
+                            if (ns.getServerUsedRam("home") < (ns.getServerMaxRam("home") * ram_homereserve)) { chk_loop = 0 }
+                            await ns.sleep(1000);
                             var player_servers = ns.getPurchasedServers();
                             ia = 0;
                         }
@@ -115,6 +115,7 @@ export async function main(ns) {
                     //ns.print("Player Server Count: " + player_servers.length)
                     var ia = 0;
                     // && ia != player_servers.length
+                    var set_break = 0
                     while (chk_loop == 1) {
                         ns.print("Checking Available RAM on " + player_servers[ia]);
                         var ps_MaxRam = ns.getServerMaxRam(player_servers[ia]);
@@ -130,8 +131,8 @@ export async function main(ns) {
                         ia++;
                         if (ia == player_servers.length) {
                             ns.print("No available servers, wait...");
-                            await ns.sleep(6000);
-                            if (ns.getServerUsedRam("home") < (ns.getServerMaxRam("home") * ram_homereserve)) { break }
+                            if (ns.getServerUsedRam("home") < (ns.getServerMaxRam("home") * ram_homereserve)) { chk_loop = 0 }
+                            await ns.sleep(1000);
                             ia = 0;
                         }
                         await ns.sleep(250);
