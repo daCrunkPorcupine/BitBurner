@@ -23,16 +23,16 @@ export async function main(ns) {
 				var player_hacking_lvl = ns.getHackingLevel();
 				var server_hacking_lvl = ns.getServerRequiredHackingLevel(h);
 				//ns.tprint("Checking for root on " + h);
-				if (ns.hasRootAccess(h) == false && player_hacking_lvl >= server_hacking_lvl) {
+				if (h != "home" && ns.hasRootAccess(h) == false && player_hacking_lvl >= server_hacking_lvl) {
 					//Run hack script attempting to root
 					//ns.tprint("NO ROOT! Executing auto-root.js")
-					ns.exec("auto-root.js", "home", 1, h)
-				} else if (h != "home" && ns.hasRootAccess(h) == true) {
+					ns.exec("auto-root.js", "home", 1, h);
+					//targets.push(h);
+				}
+				await ns.sleep(100);
+				if (h != "home" && ns.hasRootAccess(h) == true) {
+					//
 					targets.push(h);
-					//ns.tprint("Adding " + h + " to targets. Total count: " + targets.length);
-					ns.exec("auto-root.js", "home", 1, h)
-					await ns.write(checkDataFile, targets.join("\n"), "w");
-
 				}
 			}
 			else {
@@ -41,6 +41,8 @@ export async function main(ns) {
 			
 			await ns.sleep(250);
 		}
+		//Adds targets array to DataFile
+		await ns.write(checkDataFile, targets.join("\n"), "w");
 
 	}
 	
