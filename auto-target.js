@@ -102,13 +102,6 @@ export async function main(ns) {
         for (var i = targets_array; i >= 0; i--) {
             var chk_loop = 1;
             //ns.print(targets[i]);
-            /**
-            var srv_moneyavailable = (ns.getServerMoneyAvailable(targets[i]) / 1000000000).toFixed(2);
-            var srv_moneymax = (ns.getServerMaxMoney(targets[i]) / 1000000000).toFixed(2);
-            var srv_moneypct = (srv_moneyavailable / srv_moneymax * 100).toFixed(0);
-            ns.print("Money (Bn): " + srv_moneyavailable + "; Max Money (Bn): " + srv_moneymax + "; % Available: " + srv_moneypct);
-            ns.print("Security Minimum: " + ns.getServerMinSecurityLevel(targets[i]) + "; Security Current: " + ns.getServerSecurityLevel(targets[i]).toFixed(2));
-            **/
             
             //Checks servername Minimum Security level + value
             var securityCheck = ns.getServerMinSecurityLevel(targets[i]) + 10;
