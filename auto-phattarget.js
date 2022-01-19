@@ -34,7 +34,7 @@ export async function main(ns) {
             }
             await ns.sleep(1000);
             while (ns.isRunning("auto-weaken.js", hostname, target) == true) {
-                ns.print("auto-weaken.js is running on " + target + "sleep");
+                ns.print("auto-weaken.js is running on " + target + " : " + hostname);
                 await ns.sleep(1000);
             }
         }
@@ -57,7 +57,7 @@ export async function main(ns) {
             }
             await ns.sleep(1000);
             while (ns.isRunning("auto-grow.js", hostname, target) == true) {
-                ns.print("auto-grow.js is running on " + target + "sleep");
+                ns.print("auto-grow.js is running on " + target + " : " + hostname);
                 await ns.sleep(1000);
             }
         await ns.sleep(1000);
