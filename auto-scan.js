@@ -60,10 +60,10 @@ export async function main(ns) {
 			var player_hacking_lvl = ns.getHackingLevel();
 			var server_hacking_lvl = ns.getServerRequiredHackingLevel(targets[i]);
 
-			if (srv_moneypct > 50 && numThreads > 3 && player_hacking_lvl > server_hacking_lvl) {
-				//Sets max of 100 threads
-				if (numThreads > 100) {
-					numThreads = 100;
+			if (srv_moneypct > 80 && numThreads > 3 && player_hacking_lvl > server_hacking_lvl) {
+				//Sets max threads
+				if (numThreads > 250) {
+					numThreads = 250;
 				} else if (ns.getServerMaxRam("home") < 512 && numThreads > 25) {
 					//If home RAM is under 512, use a max thread of 25 for early game progression
 					numThreads = 25;
