@@ -46,19 +46,26 @@ export async function main(ns) {
 
 	}
 	
-	async function AutoHack() {
-		var targets = ns.read(checkDataFile).split("\n");
-		var targets_array = targets.length - 1;
-		for (var i = targets_array; i >= 0; i--) {
-			var srv_moneyavailable = ns.getServerMoneyAvailable(targets[i]);
-            var srv_moneymax = ns.getServerMaxMoney(targets[i]);
+    async function AutoHack(targets_value) {
+		//var targets = ns.read(checkDataFile).split("\n");
+		//ns.tprint("targets_value length: " + targets_value.length);
+		//ns.tprint(targets_value);
+		if (targets.length < 1) {
+			//IDEA: Add break / skip
+		}
+		var targets_array = targets_value.length - 1;
+		for (let i = 0; i <= targets_array; i++) {
+			let hack_target = targets_value[i]["servername"];
+			//ns.tprint("DEBUG: hack_target: " + hack_target);
+			var srv_moneyavailable = ns.getServerMoneyAvailable(hack_target);
+            var srv_moneymax = ns.getServerMaxMoney(hack_target);
             var srv_moneypct = (srv_moneyavailable / srv_moneymax * 100);
-			//ns.tprint(targets[i] + "; Money (Bn): " + srv_moneyavailable + "; Max Money (Bn): " + srv_moneymax + "; % Available: " + srv_moneypct);
+			//ns.tprint(hack_target + "; Money (Bn): " + srv_moneyavailable + "; Max Money (Bn): " + srv_moneymax + "; % Available: " + srv_moneypct);
 			var numThreads = Math.floor((ns.getServerMaxRam("home") - ns.getServerUsedRam("home") * 0.9) / ns.getScriptRam("auto-hack.js"));
-			ns.print(targets[i] + "; Money %: " + srv_moneypct + "; Threads: " + numThreads);
+			ns.print(hack_target + "; Money %: " + srv_moneypct + "; Threads: " + numThreads);
 			//Checks player hacking level
 			var player_hacking_lvl = ns.getHackingLevel();
-			var server_hacking_lvl = ns.getServerRequiredHackingLevel(targets[i]);
+			var server_hacking_lvl = ns.getServerRequiredHackingLevel(hack_target);
 
 			if (srv_moneypct > 80 && numThreads > 3 && player_hacking_lvl > server_hacking_lvl) {
 				//Sets max threads
@@ -68,22 +75,58 @@ export async function main(ns) {
 					//If home RAM is under 512, use a max thread of 25 for early game progression
 					numThreads = 25;
 				}
-				ns.exec("auto-hack.js", "home", numThreads, targets[i]);
+				ns.exec("auto-hack.js", "home", numThreads, hack_target);
 			}
 			else {
-				ns.print("Not enough RAM OR not enough money... skipping " + targets[i])
+				ns.print("Not enough RAM OR not enough money... skipping " + hack_target)
 			}
 			await ns.sleep(250);
 		}
 
 	}
 
+    //TargetPhatServer() Begin
+    //Scans for phat servers for priority
+    async function TargetPhatServer() {
+        var targets = ns.read(checkDataFile).split("\n");
+        var phat_targets = [];
+
+        //Gets array count
+        if (targets.length == 1) {
+            var targets_array = 1;
+        } else {
+            var targets_array = targets.length - 1;
+        }
+        var server_value = 0;
+    
+        for (var i = targets_array; i >= 0; i--) {
+            var player_hacking_lvl = ns.getHackingLevel();
+            var server_hacking_lvl = ns.getServerRequiredHackingLevel(targets[i]);
+            if (player_hacking_lvl >= server_hacking_lvl) {
+                //Calculate a value (maxmoney * hackchance / weakentime)
+                server_value = ns.getServerMaxMoney(targets[i]) * ns.hackAnalyzeChance(targets[i]) / ns.getWeakenTime(targets[i]);
+                //ns.tprint("servername: " + targets[i] + "; value: " + server_value);
+                phat_targets.push({"servername":targets[i],"value":server_value});
+            }
+            await ns.sleep(100);
+        }
+        //Sorts decending based on 'value'
+        phat_targets.sort(function(a, b){return b.value-a.value});
+
+        await ns.sleep(6000);
+        return phat_targets;
+        
+    }
+    //TargetPhatServer() END
+
+
 	while (true) {
 		
 		await AutoScanner();
-		await ns.sleep(1000);
+		await ns.sleep(100);
+		let targets_value = await TargetPhatServer();
 		ns.exec("auto-target.js", "home", 1, checkDataFile)
-		await AutoHack();
+		await AutoHack(targets_value);
 		await ns.sleep(6000);
 
 	}
