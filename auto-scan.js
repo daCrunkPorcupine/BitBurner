@@ -54,7 +54,7 @@ export async function main(ns) {
             var srv_moneymax = ns.getServerMaxMoney(targets[i]);
             var srv_moneypct = (srv_moneyavailable / srv_moneymax * 100);
 			//ns.tprint(targets[i] + "; Money (Bn): " + srv_moneyavailable + "; Max Money (Bn): " + srv_moneymax + "; % Available: " + srv_moneypct);
-			var numThreads = Math.floor((ns.getServerMaxRam("home") - ns.getServerUsedRam("home")) / ns.getScriptRam("auto-hack.js"));
+			var numThreads = Math.floor((ns.getServerMaxRam("home") - ns.getServerUsedRam("home") * 0.9) / ns.getScriptRam("auto-hack.js"));
 			ns.print(targets[i] + "; Money %: " + srv_moneypct + "; Threads: " + numThreads);
 			//Checks player hacking level
 			var player_hacking_lvl = ns.getHackingLevel();
@@ -73,7 +73,7 @@ export async function main(ns) {
 			else {
 				ns.print("Not enough RAM OR not enough money... skipping " + targets[i])
 			}
-			await ns.sleep(250);		
+			await ns.sleep(250);
 		}
 
 	}
