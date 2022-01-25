@@ -3,15 +3,12 @@ export async function main(ns) {
     var checkDataFile = ns.args[0];
     //RAM usage limit for calling individual targets
     var ram_homereserve = 0.7;
-    //Sets maximum number of targets to focus with player servers, remaining servers "round robin"
-    var top_targets_ct = 5;
-
+    
+    //TargetPhatServer() Begin
     //Scans for phat servers for priority
     async function TargetPhatServer() {
         var targets = ns.read(checkDataFile).split("\n");
-        var botnet_list = [];
-        var top_targets = [];
-        var top_targets_counter = 0;
+        var phat_targets = [];
 
         //Gets array count
         if (targets.length == 1) {
@@ -19,73 +16,94 @@ export async function main(ns) {
         } else {
             var targets_array = targets.length - 1;
         }
-        var toptarget = 0;
         var server_value = 0;
     
         for (var i = targets_array; i >= 0; i--) {
             var player_hacking_lvl = ns.getHackingLevel();
             var server_hacking_lvl = ns.getServerRequiredHackingLevel(targets[i]);
-            //Calculate a value (maxmoney * hackchance / weakentime)
-            server_value = ns.getServerMaxMoney(targets[i]) * ns.hackAnalyzeChance(targets[i]) / ns.getWeakenTime(targets[i]);
-            //ns.tprint("Server: " + targets[i] + "; Value: " + server_value);
-            //Adds to botnet_list if target RAM > 32gb, only uses targeted mechanism if home RAM is under 512
-            if (ns.getServerMaxRam("home") < 1024 && player_hacking_lvl >= server_hacking_lvl && ns.getServerMaxRam(targets[i]) >= 32) {
-                botnet_list.push(targets[i]);
-            }
-            if (server_value > toptarget && player_hacking_lvl >= server_hacking_lvl) {
-                var bestserver = targets[i];
-                toptarget = server_value;
+            if (player_hacking_lvl >= server_hacking_lvl) {
+                //Calculate a value (maxmoney * hackchance / weakentime)
+                server_value = ns.getServerMaxMoney(targets[i]) * ns.hackAnalyzeChance(targets[i]) / ns.getWeakenTime(targets[i]);
+                //ns.tprint("servername: " + targets[i] + "; value: " + server_value);
+                phat_targets.push({"servername":targets[i],"value":server_value});
             }
             await ns.sleep(100);
         }
-        //ns.tprint("Best server: " + bestserver + "; with $: " + toptarget);
-        //var free_ram = Math.floor((ns.getServerMaxRam("home") - ns.getServerUsedRam("home")) * 0.8);
-        //Checks target MaxMoney * value
+        //Sorts decending based on 'value'
+        phat_targets.sort(function(a, b){return b.value-a.value});
+
+        await ns.sleep(6000);
+        return phat_targets;
+        
+    }
+    //TargetPhatServer() END
+
+    //Pushes attacks from home if free RAM
+    async function homeTarget(targets_value) {
+        let bestserver = targets_value[0]["servername"];
         var moneyCheck = ns.getServerMaxMoney(bestserver) * 0.8;
         //Checks target Minimum Security level + value
         var securityCheck = ns.getServerMinSecurityLevel(bestserver) + 10;
         if (ns.getServerSecurityLevel(bestserver) > securityCheck || ns.getServerMoneyAvailable(bestserver) < moneyCheck) {
             ns.exec("auto-phattarget.js", "home", 1,bestserver);
         }
+    }
+    //botnetTarget() Begin
+    //Pushes attacks from BOTNET lists
+    async function botnetTarget(targets_value) {
+        let bestserver = targets_value[0]["servername"];
+        var targets = ns.read(checkDataFile).split("\n");
+        var botnet_list = [];
+
+        //Gets array count
+        if (targets.length == 1) {
+            var targets_array = 1;
+        } else {
+            var targets_array = targets.length - 1;
+        }
+        var server_value = 0;
+
+        //ns.tprint("BOTNET BEST TARGET: " + bestserver);
+        var moneyCheck = ns.getServerMaxMoney(bestserver) * 0.8;
+        //Checks target Minimum Security level + value
+        var securityCheck = ns.getServerMinSecurityLevel(bestserver) + 10;
+        for (var i = targets_array; i >= 0; i--) {
+            var player_hacking_lvl = ns.getHackingLevel();
+            var server_hacking_lvl = ns.getServerRequiredHackingLevel(targets[i]);
+            //Adds to botnet_list if target RAM > 32gb
+            if (player_hacking_lvl >= server_hacking_lvl && ns.getServerMaxRam(targets[i]) >= 32) {
+                botnet_list.push(targets[i]);
+                await ns.sleep(100);
+            }
+        }
+        //IDEA: Add logic to retrieve total thread count for weaken() and queue up commands to minimums
+        //IDEA: Add logic to run commands on multiple targets based on value (srv 1 first, srv 2 ec)
         //Executes botnet attacks
         if (botnet_list.length >= 1) {
             for (var ia = botnet_list.length - 1; ia >= 0; ia--) {
                 //Checks if values are still necessary - doesn't push attack if server is already prepped
                 if (ns.getServerSecurityLevel(bestserver) > securityCheck || ns.getServerMoneyAvailable(bestserver) < moneyCheck) {
-                    //ns.tprint("EXECUTING BOTNET ATTACK: " + botnet_list[ia] + "; WITH RAM: " + ns.getServerMaxRam(botnet_list[ia]));
-                    await ns.scp("auto-phattarget.js", "home", botnet_list[ia]);
-                    await ns.scp("auto-weaken.js", "home", botnet_list[ia]);
-                    await ns.scp("auto-grow.js", "home", botnet_list[ia]);
-                    ns.killall(botnet_list[ia]);
-                    ns.exec("auto-phattarget.js", botnet_list[ia], 1, bestserver);
+                    if (ns.isRunning("auto-phattarget.js", botnet_list[ia], bestserver) == false) {
+                        //ns.tprint("EXECUTING BOTNET ATTACK: " + botnet_list[ia] + "; WITH RAM: " + ns.getServerMaxRam(botnet_list[ia]));
+                        await ns.scp("auto-phattarget.js", "home", botnet_list[ia]);
+                        await ns.scp("auto-weaken.js", "home", botnet_list[ia]);
+                        await ns.scp("auto-grow.js", "home", botnet_list[ia]);
+                        ns.killall(botnet_list[ia]);
+                        ns.exec("auto-phattarget.js", botnet_list[ia], 1, bestserver);
+                    } else {
+                        //ns.tprint("BOTNET ATTACK ALREADY RUNNING! " + botnet_list[ia] + " to " + bestserver);
+                    }
+
+
+                } else {
+                    //ns.tprint("Skipping Botnet attacks - server is prepped: " + bestserver);
                 }
                 await ns.sleep(100);
             }
         }
-        //Need to fix logic for top_targets
-        /**
-        var player_servers = ns.getPurchasedServers();
-        if (player_servers.length >= 1) {
-            ns.tprint("Starting Server Check for targeted 'auto-phattarget.js'");
-            ns.tprint("Targets list: " + top_targets);
-            for (var ib = 0; ib < top_targets_ct; ib++) {
-                ns.tprint("Starting loop on: " + player_servers[ib] + top_targets[ib]);
-                if (ns.isRunning("auto-phattarget.js", player_servers[ib], top_targets[ib]) == false) {
-                    await ns.scp("auto-phattarget.js", "home", player_servers[ib]);
-                    await ns.scp("auto-weaken.js", "home", player_servers[ib]);
-                    await ns.scp("auto-grow.js", "home", player_servers[ib]);
-                    ns.killall(player_servers[ib]);
-                    ns.exec("auto-phattarget.js", player_servers[ib], 1, top_targets[ib]);
-                }
-                await ns.sleep(100);
-            }
-
-        }
-        **/
-
-        await ns.sleep(6000);
-        
     }
+    //botnetTarget() END
+    
     //Reads target list backwards
     async function AutoTarget() {
         var player_servers = ns.getPurchasedServers();
@@ -204,17 +222,18 @@ export async function main(ns) {
 
     while (true) {
         await PlayerServerCopies();
+        let targets_value = await TargetPhatServer();
         //Executes locally if no player servers have been purchased, reserving free RAM for other scripts
         //Will not execute if too much RAM is in use (due to other processes)
         if (ns.getServerUsedRam("home") < (ns.getServerMaxRam("home") * ram_homereserve)) {
-            await TargetPhatServer();
+            homeTarget(targets_value);
         }
+        await ns.sleep(150);
+        await botnetTarget(targets_value);
         await ns.sleep(150);
         if (ns.getPurchasedServers().length > 0) {
             await AutoTarget();
         }
-
-
         await ns.sleep(150);
     }
 
