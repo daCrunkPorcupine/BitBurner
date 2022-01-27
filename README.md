@@ -1,5 +1,7 @@
 # BitBurner
 Scripts for game 'BitBurner'
 
-Create scripts on home server and execute auto-control.js
+Create auto-git.js on home, run it to download all files
+Execute scripts with:
+
 > run auto-control.js
