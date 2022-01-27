@@ -13,6 +13,7 @@ export async function main(ns) {
 	var targets = [];
     var targets_value = [];
     var target_servers = [];
+    var botnet_list = [];
 	ns.rm(checkDataFile);
 	await ns.write(checkDataFile, "n00dles", "w");
     //RAM usage limit for calling individual targets
@@ -124,7 +125,7 @@ export async function main(ns) {
             //Checks if hack_target is the top index/phat target, uses max threads available for hack to allow re-grow
             if (hack_target==targets_value[0]["servername"] && srv_moneypct > 70) {
                 var numThreads = Math.floor(((ns.getServerMaxRam("home") - ns.getServerUsedRam("home")) * ram_homereserve) / ns.getScriptRam("auto-hack.js"));
-                ns.exec("auto-hack.js", "home", numThreads, hack_target);                
+                ns.exec("auto-hack.js", "home", numThreads, hack_target);
                 if(debug){ns.tprint("DEBUG: AutoHack() PHAT TARGET MAX THREADS auto-hack.js on: " + hack_target + " " + numThreads + " threads")}
             } else if (srv_moneypct > 70 && numThreads > 3 && player_hacking_lvl > server_hacking_lvl) {
 				//Sets max threads
@@ -136,10 +137,19 @@ export async function main(ns) {
 				}
                 if(debug){ns.tprint("DEBUG: AutoHack() auto-hack.js on: " + hack_target)}
 				ns.exec("auto-hack.js", "home", numThreads, hack_target);
-			}
-			else {
-				ns.print("Not enough RAM OR not enough money... skipping " + hack_target)
-			}
+			} else if (botnet_list.length >= 1 && srv_moneypct > 70 && ns.getServerMaxRam("home") < 1024) {
+                //Checks for available RAM on botnet list, pushes hacks to available servers
+                for (var ia = botnet_list.length - 1; ia >= 0; ia--) {
+                    await ns.scp("auto-hack.js", "home", botnet_list[ia]);
+                    let numThreads = Math.floor((ns.getServerMaxRam(botnet_list[ia]) - ns.getServerUsedRam(botnet_list[ia])) / ns.getScriptRam("auto-hack.js"));
+                    if (numThreads > 0) {
+                        ns.exec("auto-hack.js", botnet_list[ia], numThreads, hack_target);
+                    }
+                }
+            } else {
+                ns.print("Not enough RAM OR not enough money... skipping " + hack_target)
+            }
+
 			await ns.sleep(250);
 		}
 
@@ -161,7 +171,6 @@ export async function main(ns) {
     async function botnetTarget(targets_value) {
         let bestserver = targets_value[0]["servername"];
         var targets = ns.read(checkDataFile).split("\n");
-        var botnet_list = [];
         var debug_botnet_server_prepped = 0;
         if(debug){ns.tprint("DEBUG: botnetTarget() botnet best target " + bestserver)}
         //Gets array count
