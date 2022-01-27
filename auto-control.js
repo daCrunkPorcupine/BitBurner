@@ -396,7 +396,7 @@ export async function main(ns) {
                 await ns.exec("/api/singularity-exes.js", "home", 1, "HTTPWorm.exe");
             }
         } else {ports++}
-        if (!ns.fileExists("SQLInject.exe","home")) {
+        if (!ns.fileExists("SQLInject.exe","home") && ns.getHackingLevel() > 500) {
             if (player_money >= 250000000) {
                 if(debug){ns.tprint("DEBUG: buyEXEs() buying SQLInject.exe")}
                 await ns.exec("/api/singularity-exes.js", "home", 1, "SQLInject.exe");
