@@ -1,4 +1,12 @@
 /** @param {import(".").NS } ns */
+//CONSTANTS
+const weakenThreadPower = 0.05;
+const growthThreadIncrease = 0.004;
+const hackThreadIncrease = 0.002;
+var all_exes = false;
+//Debug Flag
+const debug = false;
+
 export async function main(ns) {
     //Executes all automation scripts
 	var checkDataFile = "auto_serverscan_data.txt";
@@ -9,8 +17,8 @@ export async function main(ns) {
 	await ns.write(checkDataFile, "n00dles", "w");
     //RAM usage limit for calling individual targets
     var ram_homereserve = 0.7;
-    //Debug Flag
-    var debug = false;
+    //scanner_task used to delay AutoScanner()
+    let scanner_task = 0;
 
 
 	//AutoScanner() Begin
@@ -33,12 +41,12 @@ export async function main(ns) {
 				//ns.tprint("Checking for root on " + h);
 				if (h != "home" && ns.hasRootAccess(h) == false && player_hacking_lvl >= server_hacking_lvl) {
 					//Run hack script attempting to root
-					//ns.tprint("NO ROOT! Executing auto-root.js")
+					if(debug){ns.tprint("DEBUG: AutoScanner() auto-root.js: " + h)}
+                    //ns.tprint("NO ROOT! Executing auto-root.js")
 					ns.exec("auto-root.js", "home", 1, h);
 				}
 				await ns.sleep(100);
 				if (h != "home" && ns.hasRootAccess(h) == true) {
-					//
 					targets.push(h);
 				}
 			}
@@ -205,7 +213,7 @@ export async function main(ns) {
     }
     //botnetTarget() END
     
-    //Reads target list backwards
+    //AutoTarget() Begin
     async function AutoTarget(target_servers) {
         var player_servers = ns.getPurchasedServers();
         //var targets = ns.read(checkDataFile).split("\n");
@@ -251,7 +259,7 @@ export async function main(ns) {
                         //ns.print("Possible Threads: " + numThreads);
                         if (numThreads >= 1) {
                             //Checks for maximum threads required. Security lowered 0.05 per 1 thread
-                            var req_security_threads = Math.floor((ns.getServerSecurityLevel(targets[i]) - (ns.getServerMinSecurityLevel(targets[i]) + 10)) / 0.05);
+                            var req_security_threads = Math.floor((ns.getServerSecurityLevel(targets[i]) - (ns.getServerMinSecurityLevel(targets[i]) + 10)) / weakenThreadPower);
                             req_security_threads++;
                             if (numThreads > req_security_threads && req_security_threads >= 1) {
                                 numThreads = req_security_threads
@@ -316,7 +324,9 @@ export async function main(ns) {
         }
 
     }
+    //AutoTarget() END
 
+    //PlayerServerCopies() Begin
     async function PlayerServerCopies() {
         if(debug){ns.tprint("DEBUG: PlayerServerCopies() execute")}
         var player_servers = ns.getPurchasedServers();
@@ -328,8 +338,65 @@ export async function main(ns) {
             await ns.sleep(100);
         }
     }
+    //PlayerServerCopies() END
     
-    let scanner_task = 0;
+    //reserveMoney() Begin
+    async function reserveMoney() {
+        let player_money = ns.getServerMoneyAvailable("home");
+        if (!doesFileExist("SQLInject.exe","home")) {
+            if (player_money >= 200000000) return true;
+        }
+        return false;
+    }
+    //reserveMoney() END
+
+    //buyEXEs() Begin
+    async function buyEXEs() {
+        let ports = 0;
+        let player_money = ns.getServerMoneyAvailable("home");
+        if(debug){ns.tprint("DEBUG: buyEXEs() starting")}
+        if (ns.getServerMaxRam("home") - ns.getServerUsedRam("home") < ns.getScriptRam("/api/singularity-tor.js")) {
+            if(debug){ns.tprint("DEBUG: buyEXEs() not enough RAM to execute /api/singularity-tor.js")}
+            return false;
+        }
+        if (!ns.fileExists("BruteSSH.exe","home")) {
+            if (player_money >= 500000) {
+                if(debug){ns.tprint("DEBUG: buyEXEs() buying BruteSSH.exe")}
+                await ns.exec("api/singularity-tor.js", "home", 1, "BruteSSH.exe");
+            }
+        } else {ports++}
+        if (!ns.fileExists("FTPCrack.exe","home")) {
+            if (player_money >= 1500000) {
+                if(debug){ns.tprint("DEBUG: buyEXEs() buying FTPCrack.exe")}
+                await ns.exec("/api/singularity-tor.js", "home", 1, "FTPCrack.exe");
+            }
+        } else {ports++}
+        if (!ns.fileExists("relaySMTP.exe","home")) {
+            if (player_money >= 5000000) {
+                if(debug){ns.tprint("DEBUG: buyEXEs() buying relaySMTP.exe")}
+                await ns.exec("/api/singularity-tor.js", "home", 1, "relaySMTP.exe");
+            }
+        } else {ports++}
+        if (!ns.fileExists("HTTPWorm.exe","home")) {
+            if (player_money >= 30000000) {
+                if(debug){ns.tprint("DEBUG: buyEXEs() buying HTTPWorm.exe")}
+                await ns.exec("/api/singularity-tor.js", "home", 1, "HTTPWorm.exe");
+            }
+        } else {ports++}
+        if (!ns.fileExists("SQLInject.exe","home")) {
+            if (player_money >= 250000000) {
+                if(debug){ns.tprint("DEBUG: buyEXEs() buying SQLInject.exe")}
+                await ns.exec("/api/singularity-tor.js", "home", 1, "SQLInject.exe");
+            }
+        } else {ports++}
+        if (ports==5) {
+            return true;
+        }
+        return false;
+    }
+    //buyEXEs() END
+
+
     //While loop tiggers all processes
     while (true) {
         
@@ -343,6 +410,10 @@ export async function main(ns) {
             if(debug){ns.tprint("DEBUG: scanner_task==" + scanner_task)}
         }
         **/
+        if (!all_exes) {
+            if(debug){ns.tprint("DEBUG: starting buyEXEs()")}
+            all_exes = await buyEXEs();
+        }
         if(debug){ns.tprint("DEBUG: scanner_task==0, run AutoScanner()")}
         target_servers = await AutoScanner();
         if(debug){ns.tprint("DEBUG: AutoScanner() target_servers: " + target_servers)}
@@ -350,7 +421,7 @@ export async function main(ns) {
 		targets_value = await TargetPhatServer(target_servers);
         if(debug){ns.tprint("DEBUG: targets_value index[0][servername] " + targets_value[0]["servername"])}
         await ns.sleep(100);
-        if (ns.getPurchasedServers() >= 1) {
+        if (ns.getPurchasedServers().length > 0) {
             if(debug){ns.tprint("DEBUG: starting PlayerServerCopies()")}
             await PlayerServerCopies();
         }
@@ -365,10 +436,12 @@ export async function main(ns) {
         if(debug){ns.tprint("DEBUG: starting botnetTarget()")}
         await botnetTarget(targets_value);
         await ns.sleep(150);
+        
         if (ns.getPurchasedServers().length > 0) {
             if(debug){ns.tprint("DEBUG: starting AutoTarget()")}
             await AutoTarget(target_servers);
         }
+                
         await ns.sleep(150);
         scanner_task++;
         if (scanner_task==5) {
