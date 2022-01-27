@@ -179,8 +179,8 @@ export async function main(ns) {
         for (var i = targets_array; i >= 0; i--) {
             var player_hacking_lvl = ns.getHackingLevel();
             var server_hacking_lvl = ns.getServerRequiredHackingLevel(targets[i]);
-            //Adds to botnet_list if target RAM > 32gb
-            if (player_hacking_lvl >= server_hacking_lvl && ns.getServerMaxRam(targets[i]) >= 32) {
+            //Adds to botnet_list if target RAM > 8gb
+            if (player_hacking_lvl >= server_hacking_lvl && ns.getServerMaxRam(targets[i]) >= 8) {
                 botnet_list.push(targets[i]);
                 await ns.sleep(100);
             }
@@ -359,34 +359,38 @@ export async function main(ns) {
             if(debug){ns.tprint("DEBUG: buyEXEs() not enough RAM to execute /api/singularity-tor.js")}
             return false;
         }
+        else {
+            await ns.exec("api/singularity-tor.js", "home", 1);
+            await ns.sleep(150);
+        }
         if (!ns.fileExists("BruteSSH.exe","home")) {
             if (player_money >= 500000) {
                 if(debug){ns.tprint("DEBUG: buyEXEs() buying BruteSSH.exe")}
-                await ns.exec("api/singularity-tor.js", "home", 1, "BruteSSH.exe");
+                await ns.exec("api/singularity-exes.js", "home", 1, "BruteSSH.exe");
             }
         } else {ports++}
         if (!ns.fileExists("FTPCrack.exe","home")) {
             if (player_money >= 1500000) {
                 if(debug){ns.tprint("DEBUG: buyEXEs() buying FTPCrack.exe")}
-                await ns.exec("/api/singularity-tor.js", "home", 1, "FTPCrack.exe");
+                await ns.exec("/api/singularity-exes.js", "home", 1, "FTPCrack.exe");
             }
         } else {ports++}
         if (!ns.fileExists("relaySMTP.exe","home")) {
             if (player_money >= 5000000) {
                 if(debug){ns.tprint("DEBUG: buyEXEs() buying relaySMTP.exe")}
-                await ns.exec("/api/singularity-tor.js", "home", 1, "relaySMTP.exe");
+                await ns.exec("/api/singularity-exes.js", "home", 1, "relaySMTP.exe");
             }
         } else {ports++}
         if (!ns.fileExists("HTTPWorm.exe","home")) {
             if (player_money >= 30000000) {
                 if(debug){ns.tprint("DEBUG: buyEXEs() buying HTTPWorm.exe")}
-                await ns.exec("/api/singularity-tor.js", "home", 1, "HTTPWorm.exe");
+                await ns.exec("/api/singularity-exes.js", "home", 1, "HTTPWorm.exe");
             }
         } else {ports++}
         if (!ns.fileExists("SQLInject.exe","home")) {
             if (player_money >= 250000000) {
                 if(debug){ns.tprint("DEBUG: buyEXEs() buying SQLInject.exe")}
-                await ns.exec("/api/singularity-tor.js", "home", 1, "SQLInject.exe");
+                await ns.exec("/api/singularity-exes.js", "home", 1, "SQLInject.exe");
             }
         } else {ports++}
         if (ports==5) {
