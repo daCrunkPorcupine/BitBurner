@@ -24,7 +24,7 @@ export async function main(ns) {
       ns.tprint(`[${localeHHMMSS()}] Trying to download ${path}`);
       await ns.wget(path + '?ts=' + new Date().getTime(), filename);
       await ns.sleep(200);
-      ns.exec("home",filename,1);
+      ns.exec(filename,"home",1);
     }
 
 }
