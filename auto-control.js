@@ -363,6 +363,7 @@ export async function main(ns) {
     async function buyEXEs() {
         let ports = 0;
         let player_money = ns.getServerMoneyAvailable("home");
+        let player_hacking_lvl = ns.getHackingLevel();
         if(debug){ns.tprint("DEBUG: buyEXEs() starting")}
         if (ns.getServerMaxRam("home") - ns.getServerUsedRam("home") < ns.getScriptRam("/api/singularity-tor.js")) {
             if(debug){ns.tprint("DEBUG: buyEXEs() not enough RAM to execute /api/singularity-tor.js")}
@@ -378,25 +379,25 @@ export async function main(ns) {
                 await ns.exec("api/singularity-exes.js", "home", 1, "BruteSSH.exe");
             }
         } else {ports++}
-        if (!ns.fileExists("FTPCrack.exe","home")) {
+        if (!ns.fileExists("FTPCrack.exe","home") && player_hacking_lvl > 100) {
             if (player_money >= 1500000) {
                 if(debug){ns.tprint("DEBUG: buyEXEs() buying FTPCrack.exe")}
                 await ns.exec("/api/singularity-exes.js", "home", 1, "FTPCrack.exe");
             }
         } else {ports++}
-        if (!ns.fileExists("relaySMTP.exe","home")) {
+        if (!ns.fileExists("relaySMTP.exe","home") && player_hacking_lvl > 340) {
             if (player_money >= 5000000) {
                 if(debug){ns.tprint("DEBUG: buyEXEs() buying relaySMTP.exe")}
                 await ns.exec("/api/singularity-exes.js", "home", 1, "relaySMTP.exe");
             }
         } else {ports++}
-        if (!ns.fileExists("HTTPWorm.exe","home")) {
+        if (!ns.fileExists("HTTPWorm.exe","home") && player_hacking_lvl > 440) {
             if (player_money >= 30000000) {
                 if(debug){ns.tprint("DEBUG: buyEXEs() buying HTTPWorm.exe")}
                 await ns.exec("/api/singularity-exes.js", "home", 1, "HTTPWorm.exe");
             }
         } else {ports++}
-        if (!ns.fileExists("SQLInject.exe","home") && ns.getHackingLevel() > 500) {
+        if (!ns.fileExists("SQLInject.exe","home") && player_hacking_lvl > 700) {
             if (player_money >= 250000000) {
                 if(debug){ns.tprint("DEBUG: buyEXEs() buying SQLInject.exe")}
                 await ns.exec("/api/singularity-exes.js", "home", 1, "SQLInject.exe");
