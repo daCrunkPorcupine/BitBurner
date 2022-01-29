@@ -270,28 +270,27 @@ export async function main(ns) {
                         var ps_ScriptRam = ns.getScriptRam("auto-weaken.js");
                         //Checks available number of threads on remote server
                         numThreads = Math.floor((ps_MaxRam - ps_UsedRam) / ps_ScriptRam);
-                        if (numThreads == 0) {
-                            if(debug){ns.tprint("DEBUG: AutoTarget() threads on " + player_servers[ia] + " is 0, BREAK")}
-                            break;
-                        }
-                        //ns.print("Possible Threads: " + numThreads);
-                        if (numThreads >= req_security_threads) {
-                            numThreads = req_security_threads;
-                            ns.exec("auto-weaken.js", player_servers[ia], numThreads, targets[i]);
-                            if(debug){ns.tprint("DEBUG: AutoTarget() starting WEAKEN: " + player_servers[ia] + "," + targets[i] + " threads " + numThreads)}
-                            chk_loop = 0;
-                        } else if (loop_thread_ct==0 && numThreads < req_security_threads) {
-                            loop_thread_ct = req_security_threads - numThreads;
-                            ns.exec("auto-weaken.js", player_servers[ia], numThreads, targets[i]);
-                            if(debug){ns.tprint("DEBUG: AutoTarget() starting WEAKEN: " + player_servers[ia] + "," + targets[i] + " threads " + numThreads)}
-                        } else if (loop_thread_ct > 0 && loop_thread_ct < numThreads) {
-                            numThreads = loop_thread_ct;
-                            ns.exec("auto-weaken.js", player_servers[ia], numThreads, targets[i]);
-                            if(debug){ns.tprint("DEBUG: AutoTarget() starting WEAKEN: " + player_servers[ia] + "," + targets[i] + " threads " + numThreads)}
-                            chk_loop = 0;
-                        } else if (loop_thread_ct > 0 && loop_thread_ct >= numThreads) {
-                            loop_thread_ct = loop_thread_ct - numThreads;
-                            if(debug){ns.tprint("DEBUG: AutoTarget() starting WEAKEN: " + player_servers[ia] + "," + targets[i] + " threads " + numThreads)}
+                        if (numThreads != 0) {
+                            if (numThreads >= req_security_threads) {
+                                numThreads = req_security_threads;
+                                ns.exec("auto-weaken.js", player_servers[ia], numThreads, targets[i]);
+                                if(debug){ns.tprint("DEBUG: AutoTarget() starting WEAKEN: " + player_servers[ia] + "," + targets[i] + " threads " + numThreads)}
+                                chk_loop = 0;
+                            } else if (loop_thread_ct==0 && numThreads < req_security_threads) {
+                                loop_thread_ct = req_security_threads - numThreads;
+                                ns.exec("auto-weaken.js", player_servers[ia], numThreads, targets[i]);
+                                if(debug){ns.tprint("DEBUG: AutoTarget() starting WEAKEN: " + player_servers[ia] + "," + targets[i] + " threads " + numThreads)}
+                            } else if (loop_thread_ct > 0 && loop_thread_ct < numThreads) {
+                                numThreads = loop_thread_ct;
+                                ns.exec("auto-weaken.js", player_servers[ia], numThreads, targets[i]);
+                                if(debug){ns.tprint("DEBUG: AutoTarget() starting WEAKEN: " + player_servers[ia] + "," + targets[i] + " threads " + numThreads)}
+                                chk_loop = 0;
+                            } else if (loop_thread_ct > 0 && loop_thread_ct >= numThreads) {
+                                loop_thread_ct = loop_thread_ct - numThreads;
+                                if(debug){ns.tprint("DEBUG: AutoTarget() starting WEAKEN: " + player_servers[ia] + "," + targets[i] + " threads " + numThreads)}
+                            }
+                        } else {
+                            if(debug){ns.tprint("DEBUG: AutoTarget() threads on " + player_servers[ia] + " is 0!")}
                         }
 
                         ia++;
