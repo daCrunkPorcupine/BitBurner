@@ -308,7 +308,7 @@ export async function main(ns) {
                     await ns.sleep(100);
                 }
             }
-            else if (ns.getServerMoneyAvailable(targets[i]) < moneyCheck && player_hacking_lvl >= server_hacking_lvl) {
+            if (ns.getServerMoneyAvailable(targets[i]) < moneyCheck && player_hacking_lvl >= server_hacking_lvl) {
                 if (player_servers.length != 0) {
                     //ns.print("Player Server Count: " + player_servers.length)
                     var ia = 0;
