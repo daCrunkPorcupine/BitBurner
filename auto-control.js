@@ -5,7 +5,7 @@ const growthThreadIncrease = 0.004;
 const hackThreadIncrease = 0.002;
 var all_exes = false;
 //Debug Flag
-const debug = true;
+const debug = false;
 
 export async function main(ns) {
     //Executes all automation scripts
@@ -389,7 +389,7 @@ export async function main(ns) {
         } else if (ns.fileExists("FTPCrack.exe","home")) {
             ports++
         }
-        if (!ns.fileExists("relaySMTP.exe","home") && player_hacking_lvl > 340) {
+        if (!ns.fileExists("relaySMTP.exe","home") && player_hacking_lvl > 310) {
             if (player_money >= 5000000) {
                 if(debug){ns.tprint("DEBUG: buyEXEs() buying relaySMTP.exe")}
                 await ns.exec("/api/singularity-exes.js", "home", 1, "relaySMTP.exe");
