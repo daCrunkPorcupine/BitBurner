@@ -269,6 +269,9 @@ export async function main(ns) {
                         var ps_ScriptRam = ns.getScriptRam("auto-weaken.js");
                         //Checks available number of threads on remote server
                         numThreads = Math.floor((ps_MaxRam - ps_UsedRam) / ps_ScriptRam);
+                        if (numThreads == 0) {
+                            break;
+                        }
                         //ns.print("Possible Threads: " + numThreads);
                         if (numThreads >= req_security_threads) {
                             numThreads = req_security_threads;
