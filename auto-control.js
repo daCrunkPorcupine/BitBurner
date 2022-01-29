@@ -5,7 +5,7 @@ const growthThreadIncrease = 0.004;
 const hackThreadIncrease = 0.002;
 var all_exes = false;
 //Debug Flag
-const debug = true;
+const debug = false;
 
 export async function main(ns) {
     //Executes all automation scripts
@@ -256,6 +256,7 @@ export async function main(ns) {
                 //If security level is higher than 'securityCheck' threshold, weaken
                 if (player_servers.length != 0) {
                     //ns.print("Player Server Count: " + player_servers.length)
+                    //IDEA: add servers with full RAM to array, to start the thread scan where it left off instead of returning to 0
                     var ia = 0;
                     var loop_thread_ct = 0;
                     // && ia != player_servers.length
