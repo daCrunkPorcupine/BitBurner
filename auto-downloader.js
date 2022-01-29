@@ -3,7 +3,11 @@
 //https://github.com/daCrunkPorcupine/BitBurner
 //FU Cliff
 
-const baseUrl = 'https://raw.githubusercontent.com/daCrunkPorcupine/BitBurner/master/';
+//MASTER BRANCH
+//const baseUrl = 'https://raw.githubusercontent.com/daCrunkPorcupine/BitBurner/master/';
+//DEV BRANCH
+const baseUrl = 'https://raw.githubusercontent.com/daCrunkPorcupine/BitBurner/dev/';
+
 const filesroot = [
   'auto-control.js',
   'auto-root.js',

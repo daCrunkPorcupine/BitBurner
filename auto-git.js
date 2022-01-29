@@ -4,6 +4,9 @@
 //
 //FU Cliff
 
+//MASTER BRANCH
+const baseUrl = 'https://raw.githubusercontent.com/daCrunkPorcupine/BitBurner/master/';
+//DEV BRANCH
 const baseUrl = 'https://raw.githubusercontent.com/daCrunkPorcupine/BitBurner/master/';
 const filesroot = [
   'auto-downloader.js',
