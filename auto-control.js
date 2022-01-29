@@ -16,7 +16,7 @@ export async function main(ns) {
     var botnet_list = [];
 	ns.rm(checkDataFile);
 	await ns.write(checkDataFile, "n00dles", "w");
-    //RAM usage limit for calling individual targets
+    //RAM usage limit % for calling individual targets
     var ram_homereserve = 0.7;
     //scanner_task used to delay AutoScanner()
     let scanner_task = 0;
@@ -95,7 +95,7 @@ export async function main(ns) {
         //Sorts decending based on 'value'
         phat_targets.sort(function(a, b){return b.value-a.value});
 
-        await ns.sleep(6000);
+        await ns.sleep(100);
         return phat_targets;
         
     }
@@ -256,29 +256,44 @@ export async function main(ns) {
                 //If security level is higher than 'securityCheck' threshold, weaken
                 if (player_servers.length != 0) {
                     //ns.print("Player Server Count: " + player_servers.length)
+                    //IDEA: add servers with full RAM to array, to start the thread scan where it left off instead of returning to 0
                     var ia = 0;
+                    var loop_thread_ct = 0;
                     // && ia != player_servers.length
+                    //Checks for maximum threads required. Security lowered 0.05 per 1 thread
+                    if(debug){ns.tprint("DEBUG: AutoTarget() checking security on " + targets[i])}
+                    var req_security_threads = (Math.floor((ns.getServerSecurityLevel(targets[i]) - (ns.getServerMinSecurityLevel(targets[i]) + 10)) / weakenThreadPower))+1;
                     while (chk_loop == 1) {
                         //ns.print("Checking Available RAM on " + player_servers[ia]);
+                        //RAM Check settings
                         var ps_MaxRam = ns.getServerMaxRam(player_servers[ia]);
                         var ps_UsedRam = ns.getServerUsedRam(player_servers[ia]);
                         var ps_ScriptRam = ns.getScriptRam("auto-weaken.js");
-
+                        //Checks available number of threads on remote server
                         numThreads = Math.floor((ps_MaxRam - ps_UsedRam) / ps_ScriptRam);
-                        //ns.print("Possible Threads: " + numThreads);
-                        if (numThreads >= 1) {
-                            //Checks for maximum threads required. Security lowered 0.05 per 1 thread
-                            var req_security_threads = Math.floor((ns.getServerSecurityLevel(targets[i]) - (ns.getServerMinSecurityLevel(targets[i]) + 10)) / weakenThreadPower);
-                            req_security_threads++;
-                            if (numThreads > req_security_threads && req_security_threads >= 1) {
-                                numThreads = req_security_threads
+                        if (numThreads != 0) {
+                            if (numThreads >= req_security_threads) {
+                                numThreads = req_security_threads;
+                                ns.exec("auto-weaken.js", player_servers[ia], numThreads, targets[i]);
+                                if(debug){ns.tprint("DEBUG: AutoTarget() starting WEAKEN: " + player_servers[ia] + "," + targets[i] + " threads " + numThreads)}
+                                chk_loop = 0;
+                            } else if (loop_thread_ct==0 && numThreads < req_security_threads) {
+                                loop_thread_ct = req_security_threads - numThreads;
+                                ns.exec("auto-weaken.js", player_servers[ia], numThreads, targets[i]);
+                                if(debug){ns.tprint("DEBUG: AutoTarget() starting WEAKEN: " + player_servers[ia] + "," + targets[i] + " threads " + numThreads)}
+                            } else if (loop_thread_ct > 0 && loop_thread_ct < numThreads) {
+                                numThreads = loop_thread_ct;
+                                ns.exec("auto-weaken.js", player_servers[ia], numThreads, targets[i]);
+                                if(debug){ns.tprint("DEBUG: AutoTarget() starting WEAKEN: " + player_servers[ia] + "," + targets[i] + " threads " + numThreads)}
+                                chk_loop = 0;
+                            } else if (loop_thread_ct > 0 && loop_thread_ct >= numThreads) {
+                                loop_thread_ct = loop_thread_ct - numThreads;
+                                if(debug){ns.tprint("DEBUG: AutoTarget() starting WEAKEN: " + player_servers[ia] + "," + targets[i] + " threads " + numThreads)}
                             }
-                            //ns.tprint("Executing weaken on " + targets[i] + " with threads: " + numThreads);
-                            //ns.tprint("Math: " + req_security_threads);
-                            ns.exec("auto-weaken.js", player_servers[ia], numThreads, targets[i]);
-                            if(debug){ns.tprint("DEBUG: AutoTarget() starting WEAKEN: " + player_servers[ia] + "," + targets[i] + " threads " + numThreads)}
-                            chk_loop = 0;
+                        } else {
+                            if(debug){ns.tprint("DEBUG: AutoTarget() threads on " + player_servers[ia] + " is 0!")}
                         }
+
                         ia++;
                         if (ia == player_servers.length) {
                             //Break loop once all servers reached
@@ -294,7 +309,7 @@ export async function main(ns) {
                     await ns.sleep(100);
                 }
             }
-            else if (ns.getServerMoneyAvailable(targets[i]) < moneyCheck && player_hacking_lvl >= server_hacking_lvl) {
+            if (ns.getServerMoneyAvailable(targets[i]) < moneyCheck && player_hacking_lvl >= server_hacking_lvl) {
                 if (player_servers.length != 0) {
                     //ns.print("Player Server Count: " + player_servers.length)
                     var ia = 0;

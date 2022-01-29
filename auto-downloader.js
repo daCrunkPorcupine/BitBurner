@@ -3,7 +3,11 @@
 //https://github.com/daCrunkPorcupine/BitBurner
 //FU Cliff
 
+//MASTER BRANCH
 const baseUrl = 'https://raw.githubusercontent.com/daCrunkPorcupine/BitBurner/master/';
+//DEV BRANCH
+//const baseUrl = 'https://raw.githubusercontent.com/daCrunkPorcupine/BitBurner/dev/';
+
 const filesroot = [
   'auto-control.js',
   'auto-root.js',
@@ -46,7 +50,7 @@ export async function main(ns) {
       await ns.wget(path + '?ts=' + new Date().getTime(), filename);
       await ns.sleep(200);
       let apipath = '/api/' + filename;
-      await ns.mv("home",filename,apipath);
+      await ns.mv('home',filename,apipath);
       
 
     }
@@ -56,6 +60,7 @@ export async function main(ns) {
       await ns.rm(filename);
       await ns.sleep(200);
     }
+    ns.exec('auto-control.js', 'home', 1);
 
 }
 
