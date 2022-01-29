@@ -5,7 +5,7 @@ const growthThreadIncrease = 0.004;
 const hackThreadIncrease = 0.002;
 var all_exes = false;
 //Debug Flag
-const debug = false;
+const debug = true;
 
 export async function main(ns) {
     //Executes all automation scripts
@@ -16,7 +16,7 @@ export async function main(ns) {
     var botnet_list = [];
 	ns.rm(checkDataFile);
 	await ns.write(checkDataFile, "n00dles", "w");
-    //RAM usage limit for calling individual targets
+    //RAM usage limit % for calling individual targets
     var ram_homereserve = 0.7;
     //scanner_task used to delay AutoScanner()
     let scanner_task = 0;
@@ -95,7 +95,7 @@ export async function main(ns) {
         //Sorts decending based on 'value'
         phat_targets.sort(function(a, b){return b.value-a.value});
 
-        await ns.sleep(6000);
+        await ns.sleep(100);
         return phat_targets;
         
     }
@@ -260,6 +260,7 @@ export async function main(ns) {
                     var loop_thread_ct = 0;
                     // && ia != player_servers.length
                     //Checks for maximum threads required. Security lowered 0.05 per 1 thread
+                    if(debug){ns.tprint("DEBUG: AutoTarget() checking security on " + targets[i])}
                     var req_security_threads = (Math.floor((ns.getServerSecurityLevel(targets[i]) - (ns.getServerMinSecurityLevel(targets[i]) + 10)) / weakenThreadPower))+1;
                     while (chk_loop == 1) {
                         //ns.print("Checking Available RAM on " + player_servers[ia]);
@@ -270,6 +271,7 @@ export async function main(ns) {
                         //Checks available number of threads on remote server
                         numThreads = Math.floor((ps_MaxRam - ps_UsedRam) / ps_ScriptRam);
                         if (numThreads == 0) {
+                            if(debug){ns.tprint("DEBUG: AutoTarget() threads on " + player_servers[ia] + " is 0, BREAK")}
                             break;
                         }
                         //ns.print("Possible Threads: " + numThreads);
