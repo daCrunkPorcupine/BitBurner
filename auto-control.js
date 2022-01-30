@@ -172,6 +172,7 @@ export async function main(ns) {
         let bestserver = targets_value[0]["servername"];
         var targets = ns.read(checkDataFile).split("\n");
         var debug_botnet_server_prepped = 0;
+        var botnet_list = [];
         if(debug){ns.tprint("DEBUG: botnetTarget() botnet best target " + bestserver)}
         //Gets array count
         if (targets.length == 1) {
