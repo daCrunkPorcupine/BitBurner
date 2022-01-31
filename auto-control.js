@@ -4,6 +4,7 @@ const weakenThreadPower = 0.05;
 const growthThreadIncrease = 0.004;
 const hackThreadIncrease = 0.002;
 var all_exes = false;
+const use_share = false;
 //Debug Flag
 const debug = false;
 
@@ -106,7 +107,10 @@ export async function main(ns) {
 		//var targets = ns.read(checkDataFile).split("\n");
 		//ns.tprint("targets_value length: " + targets_value.length);
 		//ns.tprint(targets_value);
-		if (targets.length < 1) {
+		if(use_share) {
+            ns.kill('api/auto-share.js','home');
+        }
+        if (targets.length < 1) {
 			//IDEA: Add break / skip
 		}
 		var targets_array = targets_value.length - 1;
@@ -152,10 +156,19 @@ export async function main(ns) {
 
 			await ns.sleep(250);
 		}
+        //Use free RAM for ns.share() if enabled
+
+        if (use_share) {
+            var numThreads = Math.floor(((ns.getServerMaxRam("home") - ns.getServerUsedRam("home")) * ram_homereserve) / ns.getScriptRam("api/auto-share.js"));
+            if (numThreads >= 1) {
+                ns.exec('api/auto-share.js','home',numThreads);
+            }
+        }
 
 	}
     //AutoHack() END
 
+    //homeTarget() Begin
     //Pushes attacks from home if free RAM
     async function homeTarget(targets_value) {
         let bestserver = targets_value[0]["servername"];
@@ -166,6 +179,8 @@ export async function main(ns) {
             ns.exec("auto-phattarget.js", "home", 1,bestserver);
         }
     }
+    //homeTarget() END
+
     //botnetTarget() Begin
     //Pushes attacks from BOTNET lists
     async function botnetTarget(targets_value) {
@@ -393,41 +408,51 @@ export async function main(ns) {
             if (player_money >= 500000) {
                 if(debug){ns.tprint("DEBUG: buyEXEs() buying BruteSSH.exe")}
                 await ns.exec("api/singularity-exes.js", "home", 1, "BruteSSH.exe");
+                await ns.sleep(100);
             }
         } else if (ns.fileExists("BruteSSH.exe","home")) {
             ports++
+            await ns.sleep(100);
         }
         if (!ns.fileExists("FTPCrack.exe","home") && player_hacking_lvl > 100) {
             if (player_money >= 1500000) {
                 if(debug){ns.tprint("DEBUG: buyEXEs() buying FTPCrack.exe")}
                 await ns.exec("/api/singularity-exes.js", "home", 1, "FTPCrack.exe");
+                await ns.sleep(100);
             }
         } else if (ns.fileExists("FTPCrack.exe","home")) {
             ports++
+            await ns.sleep(100);
         }
         if (!ns.fileExists("relaySMTP.exe","home") && player_hacking_lvl > 310) {
             if (player_money >= 5000000) {
                 if(debug){ns.tprint("DEBUG: buyEXEs() buying relaySMTP.exe")}
                 await ns.exec("/api/singularity-exes.js", "home", 1, "relaySMTP.exe");
+                await ns.sleep(100);
             }
         } else if (ns.fileExists("relaySMTP.exe","home")) {
             ports++
+            await ns.sleep(100);
         }
         if (!ns.fileExists("HTTPWorm.exe","home") && player_hacking_lvl > 440) {
             if (player_money >= 30000000) {
                 if(debug){ns.tprint("DEBUG: buyEXEs() buying HTTPWorm.exe")}
                 await ns.exec("/api/singularity-exes.js", "home", 1, "HTTPWorm.exe");
+                await ns.sleep(100);
             }
         } else if (ns.fileExists("HTTPWorm.exe","home")) {
             ports++
+            await ns.sleep(100);
         }
         if (!ns.fileExists("SQLInject.exe","home") && player_hacking_lvl > 700) {
             if (player_money >= 250000000) {
                 if(debug){ns.tprint("DEBUG: buyEXEs() buying SQLInject.exe")}
                 await ns.exec("/api/singularity-exes.js", "home", 1, "SQLInject.exe");
+                await ns.sleep(100);
             }
         } else if (ns.fileExists("SQLInject.exe","home")) {
             ports++
+            await ns.sleep(100);
         }
         if (ports==5) {
             if(debug){ns.tprint("DEBUG: buyEXEs() finished - ALL EXES PURCHASED")}
