@@ -108,7 +108,7 @@ export async function main(ns) {
 		//ns.tprint("targets_value length: " + targets_value.length);
 		//ns.tprint(targets_value);
 		if(use_share) {
-            ns.kill('api/auto-share.js','home');
+            ns.kill('src/auto-share.js','home');
         }
         if (targets.length < 1) {
 			//IDEA: Add break / skip
@@ -159,9 +159,9 @@ export async function main(ns) {
         //Use free RAM for ns.share() if enabled
 
         if (use_share) {
-            var numThreads = Math.floor(((ns.getServerMaxRam("home") - ns.getServerUsedRam("home")) * ram_homereserve) / ns.getScriptRam("api/auto-share.js"));
+            var numThreads = Math.floor(((ns.getServerMaxRam("home") - ns.getServerUsedRam("home")) * ram_homereserve) / ns.getScriptRam("src/auto-share.js"));
             if (numThreads >= 1) {
-                ns.exec('api/auto-share.js','home',numThreads);
+                ns.exec('src/auto-share.js','home',numThreads);
             }
         }
 
@@ -396,18 +396,18 @@ export async function main(ns) {
         let player_money = ns.getServerMoneyAvailable("home");
         let player_hacking_lvl = ns.getHackingLevel();
         if(debug){ns.tprint("DEBUG: buyEXEs() starting")}
-        if (ns.getServerMaxRam("home") - ns.getServerUsedRam("home") < ns.getScriptRam("/api/singularity-tor.js")) {
-            if(debug){ns.tprint("DEBUG: buyEXEs() not enough RAM to execute /api/singularity-tor.js")}
+        if (ns.getServerMaxRam("home") - ns.getServerUsedRam("home") < ns.getScriptRam("/src/singularity-tor.js")) {
+            if(debug){ns.tprint("DEBUG: buyEXEs() not enough RAM to execute /src/singularity-tor.js")}
             return false;
         }
         else {
-            await ns.exec("api/singularity-tor.js", "home", 1);
+            await ns.exec("src/singularity-tor.js", "home", 1);
             await ns.sleep(150);
         }
         if (!ns.fileExists("BruteSSH.exe","home")) {
             if (player_money >= 500000) {
                 if(debug){ns.tprint("DEBUG: buyEXEs() buying BruteSSH.exe")}
-                await ns.exec("api/singularity-exes.js", "home", 1, "BruteSSH.exe");
+                await ns.exec("src/singularity-exes.js", "home", 1, "BruteSSH.exe");
                 await ns.sleep(100);
             }
         } else if (ns.fileExists("BruteSSH.exe","home")) {
@@ -417,7 +417,7 @@ export async function main(ns) {
         if (!ns.fileExists("FTPCrack.exe","home") && player_hacking_lvl > 100) {
             if (player_money >= 1500000) {
                 if(debug){ns.tprint("DEBUG: buyEXEs() buying FTPCrack.exe")}
-                await ns.exec("/api/singularity-exes.js", "home", 1, "FTPCrack.exe");
+                await ns.exec("/src/singularity-exes.js", "home", 1, "FTPCrack.exe");
                 await ns.sleep(100);
             }
         } else if (ns.fileExists("FTPCrack.exe","home")) {
@@ -427,7 +427,7 @@ export async function main(ns) {
         if (!ns.fileExists("relaySMTP.exe","home") && player_hacking_lvl > 310) {
             if (player_money >= 5000000) {
                 if(debug){ns.tprint("DEBUG: buyEXEs() buying relaySMTP.exe")}
-                await ns.exec("/api/singularity-exes.js", "home", 1, "relaySMTP.exe");
+                await ns.exec("/src/singularity-exes.js", "home", 1, "relaySMTP.exe");
                 await ns.sleep(100);
             }
         } else if (ns.fileExists("relaySMTP.exe","home")) {
@@ -437,7 +437,7 @@ export async function main(ns) {
         if (!ns.fileExists("HTTPWorm.exe","home") && player_hacking_lvl > 440) {
             if (player_money >= 30000000) {
                 if(debug){ns.tprint("DEBUG: buyEXEs() buying HTTPWorm.exe")}
-                await ns.exec("/api/singularity-exes.js", "home", 1, "HTTPWorm.exe");
+                await ns.exec("/src/singularity-exes.js", "home", 1, "HTTPWorm.exe");
                 await ns.sleep(100);
             }
         } else if (ns.fileExists("HTTPWorm.exe","home")) {
@@ -447,7 +447,7 @@ export async function main(ns) {
         if (!ns.fileExists("SQLInject.exe","home") && player_hacking_lvl > 700) {
             if (player_money >= 250000000) {
                 if(debug){ns.tprint("DEBUG: buyEXEs() buying SQLInject.exe")}
-                await ns.exec("/api/singularity-exes.js", "home", 1, "SQLInject.exe");
+                await ns.exec("/src/singularity-exes.js", "home", 1, "SQLInject.exe");
                 await ns.sleep(100);
             }
         } else if (ns.fileExists("SQLInject.exe","home")) {
