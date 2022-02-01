@@ -19,6 +19,8 @@ const filesroot = [
 const filessource = [
   'singularity-tor.js',
   'singularity-exes.js',
+  'auto-share.js',
+  'buy-servers.js',
 ]
 const oldfiles = [
   'auto-target.js',

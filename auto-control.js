@@ -8,6 +8,10 @@ const use_share = false;
 //Debug Flag
 const debug = false;
 
+//Player Servers
+const servername_prefix = 'jus';
+const player_server_max = 25;
+
 export async function main(ns) {
     //Executes all automation scripts
 	var checkDataFile = "auto_serverscan_data.txt";
@@ -463,6 +467,21 @@ export async function main(ns) {
     }
     //buyEXEs() END
 
+    //buyServers() Begin
+    async function buyServers() {
+        if (ns.getServerMaxRam('home') >= 16384) {
+            var ram_size = 4096;
+        } else if (ns.getServerMaxRam('home') >= 4096) {
+            var ram_size = 2048;
+        } else if (ns.getServerMaxRam('home') >= 1024) {
+            var ram_size = 512;
+        } else {
+            var ram_size = ns.getServerMaxRam('home');
+        }
+        ns.exec('src/buy-servers.js','home',1,servername_prefix,ram_size);
+    }
+    //buyServers() END
+
 
     //While loop tiggers all processes
     while (true) {
@@ -510,7 +529,22 @@ export async function main(ns) {
             if(debug){ns.tprint("DEBUG: starting AutoTarget()")}
             await AutoTarget(target_servers);
         }
-                
+        if (ns.getPurchasedServers().length != player_server_max) {
+            if(debug){ns.tprint("DEBUG: starting buyServers()")}
+            await buyServers();
+        } else if (ns.getPurchasedServers().length == player_server_max) {
+            if (ns.isRunning('src/auto-share.js',server_name) == false) {
+                let server_name = server_prefix + 'share';
+                ns.killall(server_name);
+                await ns.sleep(100);
+                let numThreads = Math.floor((ns.getServerMaxRam(server_name) - ns.getServerUsedRam(server_name)) / ns.getScriptRam('src/auto-share.js'));
+                await ns.scp('src/auto-share.js', 'home', server_name);
+                await ns.sleep(100);
+                ns.exec('src/auto-share.js',server_name,numThreads);
+            }
+
+        }
+        //Appends increment to scanner task if we skip scan on every pass                
         await ns.sleep(150);
         scanner_task++;
         if (scanner_task==5) {
