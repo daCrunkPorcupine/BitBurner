@@ -42,8 +42,8 @@ export async function main(ns) {
       await ns.wget(path + '?ts=' + new Date().getTime(), filename);
     }
     //Copies / moves specific API scripts
-    for (let i = 0; i < filesapi.length; i++) {
-      let filename = filesapi[i];
+    for (let i = 0; i < filessource.length; i++) {
+      let filename = filessource[i];
       let path = baseUrl + 'src/' + filename;
       await ns.scriptKill(filename, 'home');
       await ns.rm(filename);
@@ -51,8 +51,8 @@ export async function main(ns) {
       ns.tprint(`[${localeHHMMSS()}] Trying to download ${path}`);
       await ns.wget(path + '?ts=' + new Date().getTime(), filename);
       await ns.sleep(200);
-      let apipath = '/src/' + filename;
-      await ns.mv('home',filename,apipath);
+      let srcpath = '/src/' + filename;
+      await ns.mv('home',filename,srcpath);
       
 
     }
