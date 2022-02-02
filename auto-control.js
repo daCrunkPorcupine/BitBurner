@@ -529,6 +529,7 @@ export async function main(ns) {
             if(debug){ns.tprint("DEBUG: starting AutoTarget()")}
             await AutoTarget(target_servers);
         }
+        /**
         if (ns.getPurchasedServers().length != player_server_max) {
             if(debug){ns.tprint("DEBUG: starting buyServers()")}
             await buyServers();
@@ -544,6 +545,7 @@ export async function main(ns) {
             }
 
         }
+        **/
         //Appends increment to scanner task if we skip scan on every pass                
         await ns.sleep(150);
         scanner_task++;
