@@ -406,22 +406,22 @@ export async function main(ns) {
         if (ns.hasRootAccess("CSEC") == true) {
             await ns.exec("src/server-search.js","home",1,"CSEC");
             await ns.sleep(150);
-            await ns.joinFaction("CyberSec");
+            //await ns.joinFaction("CyberSec");
         }
         if (ns.hasRootAccess("avmnite-02h") == true) {
             await ns.exec("src/server-search.js","home",1,"avmnite-02h");
             await ns.sleep(150);
-            await ns.joinFaction("NiteSec");
+            //await ns.joinFaction("NiteSec");
         }
         if (ns.hasRootAccess("I.I.I.I") == true) {
             await ns.exec("src/server-search.js","home",1,"I.I.I.I");
             await ns.sleep(150);
-            await ns.joinFaction("The Black Hand");
+            //await ns.joinFaction("The Black Hand");
         }
         if (ns.hasRootAccess("run4theh111z") == true) {
             await ns.exec("src/server-search.js","home",1,"run4theh111z");
             await ns.sleep(150);
-            await ns.joinFaction("BitRunners");
+            //await ns.joinFaction("BitRunners");
         }
         
     }
