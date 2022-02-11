@@ -21,6 +21,16 @@ export async function main(ns) {
             ns.purchaseServer((server_name), ram_scaled);
             await ns.sleep(100);
 
+            ns.killall(server_name);
+            await ns.sleep(100);
+            var numThreads = Math.floor((ns.getServerMaxRam(server_name) - ns.getServerUsedRam(server_name)) / ns.getScriptRam('src/auto-share.js'));
+            await ns.scp('src/auto-share.js', 'home', server_name);
+            ns.tprint(numThreads);
+            //await ns.exec('src/auto-share.js',"home",5);
+            ns.exec('src/auto-share.js',server_name,numThreads);
+
+
+
         }
     }
 }

@@ -21,6 +21,9 @@ const filessource = [
   'singularity-exes.js',
   'auto-share.js',
   'buy-servers.js',
+  'gang-control.js',
+  'gang-crime.js',
+  'server-search.js',
 ]
 const oldfiles = [
   'auto-target.js',

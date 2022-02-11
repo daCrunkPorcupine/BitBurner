@@ -5,16 +5,19 @@ const growthThreadIncrease = 0.004;
 const hackThreadIncrease = 0.002;
 var all_exes = false;
 const use_share = false;
+const checkDataFile = "auto_serverscan_data.txt";
 //Debug Flag
 const debug = false;
 
 //Player Servers
 const servername_prefix = 'jus';
+//IDEA: Pull max from ns.getBitNodeMultipliers()
+//ex "PurchasedServerLimit":1 = multiplier of 1*25
 const player_server_max = 25;
 
 export async function main(ns) {
     //Executes all automation scripts
-	var checkDataFile = "auto_serverscan_data.txt";
+
 	var targets = [];
     var targets_value = [];
     var target_servers = [];
@@ -132,9 +135,11 @@ export async function main(ns) {
 			var server_hacking_lvl = ns.getServerRequiredHackingLevel(hack_target);
             //Checks if hack_target is the top index/phat target, uses max threads available for hack to allow re-grow
             if (hack_target==targets_value[0]["servername"] && srv_moneypct > 70) {
-                var numThreads = Math.floor(((ns.getServerMaxRam("home") - ns.getServerUsedRam("home")) * ram_homereserve) / ns.getScriptRam("auto-hack.js"));
-                ns.exec("auto-hack.js", "home", numThreads, hack_target);
-                if(debug){ns.tprint("DEBUG: AutoHack() PHAT TARGET MAX THREADS auto-hack.js on: " + hack_target + " " + numThreads + " threads")}
+                var numThreads = Math.floor((ns.getServerMaxRam("home") - ns.getServerUsedRam("home")) / ns.getScriptRam("auto-hack.js"));
+                if (numThreads > 0) {
+                    ns.exec("auto-hack.js", "home", numThreads, hack_target);
+                    if(debug){ns.tprint("DEBUG: AutoHack() PHAT TARGET MAX THREADS auto-hack.js on: " + hack_target + " " + numThreads + " threads")}
+                }
             } else if (srv_moneypct > 70 && numThreads > 3 && player_hacking_lvl > server_hacking_lvl) {
 				//Sets max threads
 				if (numThreads > 250) {
@@ -393,6 +398,26 @@ export async function main(ns) {
         return false;
     }
     //reserveMoney() END
+
+    //runBackdoor() Begin
+    async function runBackdoor() {
+        //IDEA: Add auto-accept faction invites
+        // Add RAM check for src/server-search.js prior to execution
+        if (ns.hasRootAccess("CSEC") == true) {
+            await ns.exec("src/server-search.js","home",1,"CSEC");
+        }
+        if (ns.hasRootAccess("avmnite-02h") == true) {
+            await ns.exec("src/server-search.js","home",1,"avmnite-02h");
+        }
+        if (ns.hasRootAccess("I.I.I.I") == true) {
+            await ns.exec("src/server-search.js","home",1,"I.I.I.I");
+        }
+        if (ns.hasRootAccess("run4theh111z") == true) {
+            await ns.exec("src/server-search.js","home",1,"run4theh111z");
+        }
+        
+    }
+    //runBackdoor() END
 
     //buyEXEs() Begin
     async function buyEXEs() {
