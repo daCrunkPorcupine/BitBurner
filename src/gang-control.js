@@ -110,7 +110,7 @@ export async function main(ns) {
 			//ns.tprint(memberStats);
 			if (memberStats.hack < training_threshold) {
 				task = "Train Hacking";
-			} else if (memberStats.hack > 400 && members.length > 10 && rep_grind.length < 3) {
+			} else if (memberStats.hack > 400 && members.length > 11 && rep_grind.length < 4) {
 				task = "Cyberterrorism";
 				rep_grind.push(members[i]);
 			} else if (memberStats.hack > 400) {

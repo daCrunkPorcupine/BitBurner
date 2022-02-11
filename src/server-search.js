@@ -1,6 +1,7 @@
 /** @param {import(".").NS } ns */
 //Connects to host, runs installBackdoor();
 export async function main(ns) {
+	await ns.sleep(100);
     const s_target = ns.args[0];
 	var server_list = [];
 	if (s_target == null) {
@@ -20,6 +21,7 @@ export async function main(ns) {
 	await ns.sleep(100);
 	await ns.installBackdoor();
 	ns.connect('home');
+	await ns.sleep(100);
 }
 
 async function scanAll(ns, target = 'home', search_target = null, recursionCall = false) {

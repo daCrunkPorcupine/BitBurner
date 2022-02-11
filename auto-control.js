@@ -400,19 +400,28 @@ export async function main(ns) {
 
     //runBackdoor() Begin
     async function runBackdoor() {
-        //IDEA: Add auto-accept faction invites
-        // Add RAM check for src/server-search.js prior to execution
+        //let player = ns.getPlayer();
+        //IDEA: Add RAM check for src/server-search.js prior to execution
+        // Add query to player if "factions" contains faction names then skip
         if (ns.hasRootAccess("CSEC") == true) {
             await ns.exec("src/server-search.js","home",1,"CSEC");
+            await ns.sleep(150);
+            await joinFaction("CyberSec");
         }
         if (ns.hasRootAccess("avmnite-02h") == true) {
             await ns.exec("src/server-search.js","home",1,"avmnite-02h");
+            await ns.sleep(150);
+            await joinFaction("NiteSec");
         }
         if (ns.hasRootAccess("I.I.I.I") == true) {
             await ns.exec("src/server-search.js","home",1,"I.I.I.I");
+            await ns.sleep(150);
+            await joinFaction("The Black Hand");
         }
         if (ns.hasRootAccess("run4theh111z") == true) {
             await ns.exec("src/server-search.js","home",1,"run4theh111z");
+            await ns.sleep(150);
+            await joinFaction("BitRunners");
         }
         
     }
@@ -553,6 +562,9 @@ export async function main(ns) {
             if(debug){ns.tprint("DEBUG: starting AutoTarget()")}
             await AutoTarget(target_servers);
         }
+
+        await runBackdoor();
+        
         /**
         if (ns.getPurchasedServers().length != player_server_max) {
             if(debug){ns.tprint("DEBUG: starting buyServers()")}
