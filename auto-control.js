@@ -17,7 +17,6 @@ const player_server_max = 25;
 
 export async function main(ns) {
     //Executes all automation scripts
-
 	var targets = [];
     var targets_value = [];
     var target_servers = [];
@@ -27,7 +26,7 @@ export async function main(ns) {
     //RAM usage limit % for calling individual targets
     var ram_homereserve = 0.7;
     //scanner_task used to delay AutoScanner()
-    let scanner_task = 0;
+    var scanner_task = 0;
 
 
 	//AutoScanner() Begin
@@ -575,7 +574,7 @@ export async function main(ns) {
         await ns.sleep(150);
         scanner_task++;
         if (scanner_task==5) {
-            let scanner_task = 0;
+            scanner_task = 0;
         }
 	}
 }
