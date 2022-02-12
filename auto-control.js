@@ -403,6 +403,7 @@ export async function main(ns) {
         //let player = ns.getPlayer();
         //IDEA: Add RAM check for src/server-search.js prior to execution
         // Add query to player if "factions" contains faction names then skip
+        if(debug){ns.tprint("DEBUG: Start runBackdoor()")}
         if (ns.hasRootAccess("CSEC") == true) {
             await ns.exec("src/server-search.js","home",1,"CSEC");
             await ns.sleep(150);

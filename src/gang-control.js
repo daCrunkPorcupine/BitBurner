@@ -3,6 +3,8 @@
 //IDEA: Query player for BN
 //ns.getPlayer() - "bitNodeN"
 const in_BN2 = false;
+//Maximum rep to grind with gang faction. IDEA: Query most expensive augment dynamically
+const factionRepThreshold = 1875000
 //Debug Flag
 const debug = false;
 // create list of names
@@ -75,6 +77,7 @@ export async function main(ns) {
 		var gangInfo = ns.gang.getGangInformation();
         var otherGangs = ns.gang.getOtherGangInformation();
 		var members = ns.gang.getMemberNames();
+		var factionRep = ns.getFactionRep(gangInfo.faction);
 		//ns.tprint(gangInfo);
 		//Checks if any member recruitment is open
 		while(ns.gang.canRecruitMember()) {
@@ -110,7 +113,7 @@ export async function main(ns) {
 			//ns.tprint(memberStats);
 			if (memberStats.hack < training_threshold) {
 				task = "Train Hacking";
-			} else if (memberStats.hack > 400 && members.length > 11 && rep_grind.length < 4) {
+			} else if (memberStats.hack > 400 && members.length > 11 && rep_grind.length < 4 && factionRep < factionRepThreshold) {
 				task = "Cyberterrorism";
 				rep_grind.push(members[i]);
 			} else if (memberStats.hack > 400) {
