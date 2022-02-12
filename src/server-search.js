@@ -3,6 +3,9 @@
 export async function main(ns) {
 	await ns.sleep(100);
     const s_target = ns.args[0];
+	//const debug = ns.args[1];
+	const debug = false;
+	
 	var server_list = [];
 	if (s_target == null) {
 	}
@@ -17,8 +20,11 @@ export async function main(ns) {
 	} else {
 		ns.print(`Server "${s_target}" was not found!`);
 	}
+	if(debug){ns.tprint("DEBUG server-search.js: server_list")}
+	if(debug){ns.tprint(server_list)}
 	server_list.forEach(hop => ns.connect(hop));
 	await ns.sleep(100);
+	if(debug){ns.tprint("DEBUG server-search.js: execuring ns.installBackdoor()")}
 	await ns.installBackdoor();
 	ns.connect('home');
 	await ns.sleep(100);
