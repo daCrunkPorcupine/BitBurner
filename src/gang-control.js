@@ -101,7 +101,7 @@ export async function main(ns) {
 			ns.gang.setMemberTask(members[i], "Unassigned");
 			//Checks for possible Ascend
 			ascend_result = ns.gang.getAscensionResult(members[i]);
-			ns.tprint(ascend_result);
+			//ns.tprint(ascend_result);
 			if(gangInfo.isHacking && ascend_result != null) {
 				//Ascend
 				//ns.gang.ascendMember(members[i]);
