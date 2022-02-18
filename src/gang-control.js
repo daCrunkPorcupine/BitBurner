@@ -95,12 +95,14 @@ export async function main(ns) {
 		for(let i = 0; i < members.length; i++) {
 			if(debug){ns.tprint("DEBUG: Processing Member: " + members[i])}
 			var task = null;
+			let ascend_result = null;
 			let memberStats = ns.gang.getMemberInformation(members[i]);
 			//Resets task to prevent loops from assigning too many incorrect jobs
 			ns.gang.setMemberTask(members[i], "Unassigned");
 			//Checks for possible Ascend
-			let ascend_result = ns.gang.getAscensionResult(members[i]);
-			if(gangInfo.isHacking && ascend_result != 'null') {
+			ascend_result = ns.gang.getAscensionResult(members[i]);
+			ns.tprint(ascend_result);
+			if(gangInfo.isHacking && ascend_result != null) {
 				//Ascend
 				//ns.gang.ascendMember(members[i]);
 				//ns.tprint("Ascend_Result: " + ascend_result.hack + "; Member Stat: " + memberStats.hack_asc_mult);
@@ -135,7 +137,7 @@ export async function main(ns) {
 			ns.gang.setMemberTask(members[i], task);
 
 			//ns.tprint(ns.gang.getAscensionResult(members[i]));
-			await ns.sleep(100);
+			await ns.sleep(6000);
 		}
 
 	}
