@@ -53,17 +53,17 @@ export async function main(ns) {
 		//if(debug){ns.tprint("DEBUG: Starting checkGang()")}
 		if (!in_BN2) {
 			var karma_level = ns.heart.break();
-			if (karma_level < 54000) {
+			if (karma_level > -54000) {
 				ns.exec("src/gang-crime.js", "home");
 				await ns.sleep(100);
 				ns.tail("src/gang-crime.js");
 			}
 		} else {
-			var karma_level = 54001;
+			var karma_level = -54001;
 			//if(debug){ns.tprint("DEBUG: var karma_level = " + karma_level)}
 		}
 		
-		if (!ns.gang.inGang() && karma_level > 54000) {
+		if (!ns.gang.inGang() && karma_level < -54000) {
 			if(debug){ns.tprint("DEBUG: No gang detected, creating gang")}
 			ns.gang.createGang('NiteSec');
 			return true;
@@ -85,9 +85,9 @@ export async function main(ns) {
             var member_random = possibleNames[getRandomInt(possibleNames.length)];
             ns.gang.recruitMember(member_random);
 			if(debug){ns.tprint("DEBUG: Recruit Member: " + member_random)}
-            await ns.sleep(1500);
+            await ns.sleep(6000);
         }
-
+		await ns.sleep(6000);
 		//Manages individual members
 		var members = ns.gang.getMemberNames();
 		let training_threshold = 125;
@@ -100,7 +100,7 @@ export async function main(ns) {
 			ns.gang.setMemberTask(members[i], "Unassigned");
 			//Checks for possible Ascend
 			let ascend_result = ns.gang.getAscensionResult(members[i]);
-			if(gangInfo.isHacking && ascend_result.hack > 1.29) {
+			if(gangInfo.isHacking && ascend_result != 'null') {
 				//Ascend
 				//ns.gang.ascendMember(members[i]);
 				//ns.tprint("Ascend_Result: " + ascend_result.hack + "; Member Stat: " + memberStats.hack_asc_mult);
