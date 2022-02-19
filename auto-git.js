@@ -3,16 +3,19 @@
 //https://github.com/daCrunkPorcupine/BitBurner
 //
 //FU Cliff
+//Set true for Dev branch
+const devBranch = false;
 
-//MASTER BRANCH
-const baseUrl = 'https://raw.githubusercontent.com/daCrunkPorcupine/BitBurner/master/';
-//DEV BRANCH
-//const baseUrl = 'https://raw.githubusercontent.com/daCrunkPorcupine/BitBurner/dev/';
 const filesroot = [
   'auto-downloader.js',
 ]
 
 export async function main(ns) {
+  if (!devBranch) {
+    const baseUrl = 'https://raw.githubusercontent.com/daCrunkPorcupine/BitBurner/master/';
+  } else {
+    const baseUrl = 'https://raw.githubusercontent.com/daCrunkPorcupine/BitBurner/dev/';
+  }
 
   if (ns.getHostname() !== 'home') {
         throw new Exception('Run the script from home');

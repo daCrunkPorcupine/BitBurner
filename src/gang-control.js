@@ -101,7 +101,6 @@ export async function main(ns) {
 			ns.gang.setMemberTask(members[i], "Unassigned");
 			//Checks for possible Ascend
 			ascend_result = ns.gang.getAscensionResult(members[i]);
-			//ns.tprint(ascend_result);
 			if(gangInfo.isHacking && ascend_result != null) {
 				//Ascend
 				//ns.gang.ascendMember(members[i]);
@@ -113,30 +112,35 @@ export async function main(ns) {
 			}
 
 			//ns.tprint(memberStats);
-			if (memberStats.hack < training_threshold) {
-				task = "Train Hacking";
-			} else if (memberStats.hack > 400 && members.length > 11 && rep_grind.length < 4 && factionRep < factionRepThreshold) {
-				task = "Cyberterrorism";
-				rep_grind.push(members[i]);
-			} else if (memberStats.hack > 400) {
-				task = "Money Laundering";
-			} else if (memberStats.hack > 160) {
-				task = "Plant Virus";
-			} else if (memberStats.hack >= training_threshold) {
-				task = "Identity Theft";
+			if (gangInfo.isHacking) {
+				if (memberStats.hack < training_threshold) {
+					task = "Train Hacking";
+				} else if (memberStats.hack > 400 && members.length > 11 && rep_grind.length < 4 && factionRep < factionRepThreshold) {
+					task = "Cyberterrorism";
+					rep_grind.push(members[i]);
+				} else if (memberStats.hack > 400) {
+					task = "Money Laundering";
+				} else if (memberStats.hack > 160) {
+					task = "Plant Virus";
+				} else if (memberStats.hack >= training_threshold) {
+					task = "Identity Theft";
+				}
 			}
 			
 			//Sets last member to Vigilante Justice if wantedPenalty is high
 			if (gangInfo.wantedLevel > 1 && gangInfo.wantedPenalty < 0.65 && i == members.length - 1) {
-				task = "Ethical Hacking";
+				if (gangInfo.isHacking) {
+					task = "Ethical Hacking";
+				}
 			} else if (gangInfo.wantedPenalty < 0.1) {
 				//Sets all members to lower wanted
-				task = "Ethical Hacking";
+				if (gangInfo.isHacking) {
+					task = "Ethical Hacking";
+				}
 			}
 			//Sets member task
 			ns.gang.setMemberTask(members[i], task);
 
-			//ns.tprint(ns.gang.getAscensionResult(members[i]));
 			await ns.sleep(6000);
 		}
 
