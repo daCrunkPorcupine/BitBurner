@@ -516,6 +516,15 @@ export async function main(ns) {
     }
     //buyServers() END
 
+    //sellHash() Begin
+    async function sellHash() {
+        let upgradeName = "Sell for Money";
+        if ((ns.getServerMaxRam('home') - ns.getServerUsedRam('home')) > ns.getScriptRam('src/hacknet-sellhash.js')) {
+            if(debug){ns.tprint('DEBUG: sellHash() executing src/hacknet-sellhash.js')}
+            ns.exec('src/hacknet-sellhash.js','home',1,upgradeName);
+        }
+    }
+    //sellHash() END
 
     //While loop tiggers all processes
     while (true) {
@@ -565,6 +574,7 @@ export async function main(ns) {
         }
 
         await runBackdoor();
+        await sellHash();
 
         /**
         if (ns.getPurchasedServers().length != player_server_max) {

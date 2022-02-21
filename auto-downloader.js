@@ -24,6 +24,7 @@ const filessource = [
   'gang-control.js',
   'gang-crime.js',
   'server-search.js',
+  'hacknet-sellhash.js',
 ]
 const oldfiles = [
   'auto-target.js',
