@@ -56,7 +56,9 @@ export async function main(ns) {
 			if (karma_level > -54000) {
 				ns.exec("src/gang-crime.js", "home");
 				await ns.sleep(100);
-				//ns.tail("src/gang-crime.js");
+				ns.tail('/src/gang-crime.js');
+				await ns.sleep(100);
+				ns.tail('/src/gang-control.js');
 			}
 		} else {
 			var karma_level = -54001;
