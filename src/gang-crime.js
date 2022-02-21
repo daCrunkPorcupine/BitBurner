@@ -4,7 +4,7 @@ export async function main(ns) {
     ns.disableLog('ALL');
     var crime = 'homicide';
     
-    while (ns.heart.break() < 54000) {
+    while (ns.heart.break() > -54000) {
         
         if(!ns.isBusy()) {
             ns.commitCrime(crime);

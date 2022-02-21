@@ -56,7 +56,7 @@ export async function main(ns) {
 			if (karma_level > -54000) {
 				ns.exec("src/gang-crime.js", "home");
 				await ns.sleep(100);
-				ns.tail("src/gang-crime.js");
+				//ns.tail("src/gang-crime.js");
 			}
 		} else {
 			var karma_level = -54001;
@@ -66,6 +66,8 @@ export async function main(ns) {
 		if (!ns.gang.inGang() && karma_level < -54000) {
 			if(debug){ns.tprint("DEBUG: No gang detected, creating gang")}
 			ns.gang.createGang('NiteSec');
+			await ns.sleep(100);
+			ns.gang.createGang('Slum Snakes');
 			return true;
 		} else {
 			return false;
@@ -85,13 +87,14 @@ export async function main(ns) {
             var member_random = possibleNames[getRandomInt(possibleNames.length)];
             ns.gang.recruitMember(member_random);
 			if(debug){ns.tprint("DEBUG: Recruit Member: " + member_random)}
-            await ns.sleep(6000);
+            await ns.sleep(300);
         }
-		await ns.sleep(6000);
+		
 		//Manages individual members
 		var members = ns.gang.getMemberNames();
-		let training_threshold = 125;
+		let training_threshold = 75;
 		let rep_grind = [];
+		let territoryWarfare = [];
 		for(let i = 0; i < members.length; i++) {
 			if(debug){ns.tprint("DEBUG: Processing Member: " + members[i])}
 			var task = null;
@@ -101,11 +104,15 @@ export async function main(ns) {
 			ns.gang.setMemberTask(members[i], "Unassigned");
 			//Checks for possible Ascend
 			ascend_result = ns.gang.getAscensionResult(members[i]);
-			if(gangInfo.isHacking && ascend_result != null) {
+			if(ascend_result != null) {
 				//Ascend
+				let statMult = 1.5;
 				//ns.gang.ascendMember(members[i]);
 				//ns.tprint("Ascend_Result: " + ascend_result.hack + "; Member Stat: " + memberStats.hack_asc_mult);
-				if (memberStats.hack > 50 && ascend_result.hack > 1.29) {
+				if (gangInfo.isHacking && ascend_result.hack > statMult) {
+					if(debug){ns.tprint("DEBUG: Ascend Member: " + members[i])}
+					ns.gang.ascendMember(members[i]);
+				} else if (!gangInfo.isHacking && ascend_result.str > statMult && ascend_result.def > statMult && ascend_result.dex > statMult && ascend_result.agi > statMult) {
 					if(debug){ns.tprint("DEBUG: Ascend Member: " + members[i])}
 					ns.gang.ascendMember(members[i]);
 				}
@@ -114,29 +121,61 @@ export async function main(ns) {
 			//ns.tprint(memberStats);
 			if (gangInfo.isHacking) {
 				if (memberStats.hack < training_threshold) {
-					task = "Train Hacking";
+					task = 'Train Hacking';
 				} else if (memberStats.hack > 400 && members.length > 11 && rep_grind.length < 4 && factionRep < factionRepThreshold) {
-					task = "Cyberterrorism";
+					task = 'Cyberterrorism';
 					rep_grind.push(members[i]);
 				} else if (memberStats.hack > 400) {
-					task = "Money Laundering";
+					task = 'Money Laundering';
 				} else if (memberStats.hack > 160) {
-					task = "Plant Virus";
+					task = 'Plant Virus';
 				} else if (memberStats.hack >= training_threshold) {
-					task = "Identity Theft";
+					task = 'Identity Theft';
+				}
+			} else {
+				//Combat Tasks
+				//IDEA: average stats for threshold check
+				if (memberStats.str < training_threshold) {
+					task = 'Train Combat';
+				} else if (memberStats.str > 400 && members.length > 11 && rep_grind.length < 4 && factionRep < factionRepThreshold) {
+					task = 'Terrorism';
+					rep_grind.push(members[i]);
+				} else if (memberStats.str > 400) {
+					task = 'Human Trafficking';
+				} else if (memberStats.str > 200) {
+					task = 'Traffick Illegal Arms';
+				} else if (memberStats.str > 85) {
+					task = 'Strongarm Civilians';
+				} else if (memberStats.str >= training_threshold) {
+					task = 'Mug People';
 				}
 			}
-			
+		
 			//Sets last member to Vigilante Justice if wantedPenalty is high
-			if (gangInfo.wantedLevel > 1 && gangInfo.wantedPenalty < 0.65 && i == members.length - 1) {
-				if (gangInfo.isHacking) {
-					task = "Ethical Hacking";
+			if (gangInfo.isHacking && gangInfo.wantedLevel > 1 && gangInfo.wantedPenalty < 0.65 && i == members.length - 1) {
+				task = 'Ethical Hacking';
+			} else if (!gangInfo.isHacking && gangInfo.wantedPenalty < 0.65) {
+				if (members.length >= 12 && i == members.length - 4) {
+					task = 'Vigilante Justice';
+				} else if (i == members.length - 1) {
+					task = 'Vigilante Justice';
 				}
 			} else if (gangInfo.wantedPenalty < 0.1) {
 				//Sets all members to lower wanted
 				if (gangInfo.isHacking) {
-					task = "Ethical Hacking";
+					task = 'Ethical Hacking';
+				} else {
+					//Combat Gang
+					task = 'Vigilante Justice';
 				}
+			}
+			//At max gang, start setting territory warfare
+			if (!gangInfo.isHacking && members.length >= 12 && memberStats.str > 85) {
+				if (i == members.length - 1 || i == members.length - 2 || i == members.length - 3) {
+					territoryWarfare.push(members[i]);
+					task = 'Territory Warfare';
+				}
+				
 			}
 			//Sets member task
 			ns.gang.setMemberTask(members[i], task);
