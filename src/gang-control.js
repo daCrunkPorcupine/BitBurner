@@ -94,7 +94,7 @@ export async function main(ns) {
 		
 		//Manages individual members
 		var members = ns.gang.getMemberNames();
-		let training_threshold = 75;
+		let training_threshold = 100;
 		let rep_grind = [];
 		let territoryWarfare = [];
 		for(let i = 0; i < members.length; i++) {
@@ -108,18 +108,24 @@ export async function main(ns) {
 			ascend_result = ns.gang.getAscensionResult(members[i]);
 			if(ascend_result != null) {
 				//Ascend
-				let statMult = 1.5;
+				let statMult = 1.35;
 				//ns.gang.ascendMember(members[i]);
 				//ns.tprint("Ascend_Result: " + ascend_result.hack + "; Member Stat: " + memberStats.hack_asc_mult);
 				if (gangInfo.isHacking && ascend_result.hack > statMult) {
 					if(debug){ns.tprint("DEBUG: Ascend Member: " + members[i])}
 					ns.gang.ascendMember(members[i]);
-				} else if (!gangInfo.isHacking && ascend_result.str > statMult && ascend_result.def > statMult && ascend_result.dex > statMult && ascend_result.agi > statMult) {
+					await ns.sleep(100);
+					//Refresh stats after ascend
+					memberStats = ns.gang.getMemberInformation(members[i]);
+				} else if (!gangInfo.isHacking && ascend_result.str > statMult && ascend_result.def > statMult && ascend_result.dex > statMult) {
 					if(debug){ns.tprint("DEBUG: Ascend Member: " + members[i])}
 					ns.gang.ascendMember(members[i]);
+					await ns.sleep(100);
+					//Refresh stats after ascend
+					memberStats = ns.gang.getMemberInformation(members[i]);
 				}
 			}
-
+			await ns.sleep(100);
 			//ns.tprint(memberStats);
 			if (gangInfo.isHacking) {
 				if (memberStats.hack < training_threshold) {
@@ -139,17 +145,15 @@ export async function main(ns) {
 				//IDEA: average stats for threshold check
 				if (memberStats.str < training_threshold) {
 					task = 'Train Combat';
-				} else if (memberStats.str > 400 && members.length > 11 && rep_grind.length < 4 && factionRep < factionRepThreshold) {
+				} else if (memberStats.str > 400 && members.length > 11 && rep_grind.length < 2 && factionRep < factionRepThreshold) {
 					task = 'Terrorism';
 					rep_grind.push(members[i]);
 				} else if (memberStats.str > 400) {
 					task = 'Human Trafficking';
 				} else if (memberStats.str > 200) {
 					task = 'Traffick Illegal Arms';
-				} else if (memberStats.str > 85) {
-					task = 'Strongarm Civilians';
 				} else if (memberStats.str >= training_threshold) {
-					task = 'Mug People';
+					task = 'Strongarm Civilians';
 				}
 			}
 		
@@ -162,7 +166,8 @@ export async function main(ns) {
 				} else if (i == members.length - 1) {
 					task = 'Vigilante Justice';
 				}
-			} else if (gangInfo.wantedPenalty < 0.1) {
+			}
+			if (gangInfo.wantedPenalty < 0.1) {
 				//Sets all members to lower wanted
 				if (gangInfo.isHacking) {
 					task = 'Ethical Hacking';
@@ -172,7 +177,7 @@ export async function main(ns) {
 				}
 			}
 			//At max gang, start setting territory warfare
-			if (!gangInfo.isHacking && members.length >= 12 && memberStats.str > 85) {
+			if (!gangInfo.isHacking && members.length >= 12 && memberStats.str >= 250) {
 				if (i == members.length - 1 || i == members.length - 2 || i == members.length - 3) {
 					territoryWarfare.push(members[i]);
 					task = 'Territory Warfare';

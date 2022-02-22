@@ -28,7 +28,6 @@ export async function main(ns) {
     //scanner_task used to delay AutoScanner()
     var scanner_task = 0;
 
-
 	//AutoScanner() Begin
 	async function AutoScanner() {
         //Scanner for all servers
@@ -402,27 +401,27 @@ export async function main(ns) {
     async function runBackdoor() {
         //let player = ns.getPlayer();
         //IDEA: Add RAM check for src/server-search.js prior to execution
-        // Add query to player if "factions" contains faction names then skip
-        if(debug){ns.tprint("DEBUG: Start runBackdoor()")}
-        if (ns.hasRootAccess("CSEC") == true) {
-            await ns.exec("src/server-search.js","home",1,"CSEC");
+        // Add query to player if 'factions' contains faction names then skip
+        if(debug){ns.tprint('DEBUG: Start runBackdoor()')}
+        if (ns.hasRootAccess('CSEC') == true && (ns.getServer('CSEC')).backdoorInstalled == false) {
+            await ns.exec('src/server-search.js','home',1,'CSEC');
             await ns.sleep(150);
-            //await ns.joinFaction("CyberSec");
+            //await ns.joinFaction('CyberSec');
         }
-        if (ns.hasRootAccess("avmnite-02h") == true) {
-            await ns.exec("src/server-search.js","home",1,"avmnite-02h");
+        if (ns.hasRootAccess('avmnite-02h') == true && (ns.getServer('avmnite-02h')).backdoorInstalled == false) {
+            await ns.exec('src/server-search.js','home',1,'avmnite-02h');
             await ns.sleep(150);
-            //await ns.joinFaction("NiteSec");
+            //await ns.joinFaction('NiteSec');
         }
-        if (ns.hasRootAccess("I.I.I.I") == true) {
-            await ns.exec("src/server-search.js","home",1,"I.I.I.I");
+        if (ns.hasRootAccess('I.I.I.I') == true && (ns.getServer('I.I.I.I')).backdoorInstalled == false) {
+            await ns.exec('src/server-search.js','home',1,'I.I.I.I');
             await ns.sleep(150);
-            //await ns.joinFaction("The Black Hand");
+            //await ns.joinFaction('The Black Hand');
         }
-        if (ns.hasRootAccess("run4theh111z") == true) {
-            await ns.exec("src/server-search.js","home",1,"run4theh111z");
+        if (ns.hasRootAccess('run4theh111z') == true && (ns.getServer('run4theh111z')).backdoorInstalled == false) {
+            await ns.exec('src/server-search.js','home',1,'run4theh111z');
             await ns.sleep(150);
-            //await ns.joinFaction("BitRunners");
+            //await ns.joinFaction('BitRunners');
         }
         
     }
