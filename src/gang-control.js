@@ -3,10 +3,10 @@
 //IDEA: Query player for BN
 //ns.getPlayer() - "bitNodeN"
 const in_BN2 = false;
-//Maximum rep to grind with gang faction. IDEA: Query most expensive augment dynamically
-const factionRepThreshold = 1875000
 //Debug Flag
 const debug = false;
+//Maximum rep to grind with gang faction. IDEA: Query most expensive augment dynamically
+const factionRepThreshold = 1875000
 // create list of names
 const memberNames = [
 	"cliffo", //1
@@ -34,8 +34,15 @@ const memberNames = [
 	"goldfeesh", //23
 	"goldfith", //24
 ];
+const fileDir = 'src/txt/'
+const moneyReserveRatio = 10;
+var gangWep = [];
+var gangArmor = [];
+var gangVehicle = [];
+var gangRootkit = [];
+var gangAugs = [];
+
 export async function main(ns) {
-	
 	while (true) {
 		let gang_valid = ns.gang.inGang();
 		if(!gang_valid) {
@@ -43,12 +50,14 @@ export async function main(ns) {
 			await checkGang();
 		} else {
 			//Runs gang functions
+			await getEquipNames();
+			await ns.sleep(100);
 			await gangManager();
 			await ns.sleep(100);
 		}
 		await ns.sleep(60000);
 	}
-	
+	//checkGang() Begin
 	async function checkGang() {
 		//if(debug){ns.tprint("DEBUG: Starting checkGang()")}
 		if (!in_BN2) {
@@ -76,7 +85,8 @@ export async function main(ns) {
 			return false;
 		}
 	}
-
+	//checkGang() END
+	//gangManager() Begin
 	async function gangManager() {
 		if(debug){ns.tprint("DEBUG: Starting gangManager()")}
 		var gangInfo = ns.gang.getGangInformation();
@@ -116,15 +126,25 @@ export async function main(ns) {
 					await ns.sleep(100);
 					//Refresh stats after ascend
 					memberStats = ns.gang.getMemberInformation(members[i]);
-				} else if (!gangInfo.isHacking && ascend_result.str > statMult && ascend_result.def > statMult && ascend_result.dex > statMult) {
-					if(debug){ns.tprint("DEBUG: Ascend Member: " + members[i])}
-					ns.gang.ascendMember(members[i]);
-					await ns.sleep(100);
-					//Refresh stats after ascend
-					memberStats = ns.gang.getMemberInformation(members[i]);
+				} else if (!gangInfo.isHacking) {
+					let ascendCt = 0;
+					if(ascend_result.str > statMult) ascendCt++
+					if(ascend_result.def > statMult) ascendCt++
+					if(ascend_result.dex > statMult) ascendCt++
+					if(ascend_result.agi > statMult) ascendCt++
+					if(ascend_result.hack > statMult) ascendCt++
+					if(ascend_result.cha > statMult) ascendCt++
+					if(ascendCt >= 2) {
+						if(debug){ns.tprint("DEBUG: Ascend Member: " + members[i])}
+						ns.gang.ascendMember(members[i]);
+						await ns.sleep(100);
+						//Refresh stats after ascend
+						memberStats = ns.gang.getMemberInformation(members[i]);
+					}
 				}
 			}
 			await ns.sleep(100);
+			await equipUpgrade(members[i]);
 			//ns.tprint(memberStats);
 			if (gangInfo.isHacking) {
 				if (memberStats.hack < training_threshold) {
@@ -157,9 +177,9 @@ export async function main(ns) {
 			}
 		
 			//Sets last member to Vigilante Justice if wantedPenalty is high
-			if (gangInfo.isHacking && gangInfo.wantedLevel > 1 && gangInfo.wantedPenalty < 0.65 && i == members.length - 1) {
+			if (gangInfo.isHacking && gangInfo.wantedLevel > 1 && gangInfo.wantedPenalty < 0.40 && i == members.length - 1) {
 				task = 'Ethical Hacking';
-			} else if (!gangInfo.isHacking && gangInfo.wantedPenalty < 0.65) {
+			} else if (!gangInfo.isHacking && gangInfo.wantedPenalty < 0.40) {
 				if (members.length >= 12 && i == members.length - 4) {
 					task = 'Vigilante Justice';
 				} else if (i == members.length - 1) {
@@ -190,7 +210,133 @@ export async function main(ns) {
 		}
 
 	}
-	
+	//gangManager() END
+	//getEquipNames() Begin
+	async function getEquipNames() {
+        var gangEquip = ns.gang.getEquipmentNames();
+		let gangInfo = ns.gang.getGangInformation();
+        for(let i = 0; i < gangEquip.length; i++) {
+            //ns.tprint(gangEquip[i]);
+            //ns.tprint(ns.gang.getEquipmentType(gangEquip[i]));
+            if(ns.gang.getEquipmentType(gangEquip[i]) == 'Weapon') gangWep.push(gangEquip[i]);
+            if(ns.gang.getEquipmentType(gangEquip[i]) == 'Armor') gangArmor.push(gangEquip[i]);
+            if(ns.gang.getEquipmentType(gangEquip[i]) == 'Vehicle') gangVehicle.push(gangEquip[i]);
+            if(ns.gang.getEquipmentType(gangEquip[i]) == 'Rootkit') gangRootkit.push(gangEquip[i]);
+            await ns.sleep(100);
+        }
+		if(gangInfo.isHacking) {
+			gangAugs.push("BitWire");
+			gangAugs.push("Neuralstimulator");
+			gangAugs.push("DataJack");
+		} else {
+			gangAugs.push("Bionic Arms");
+			gangAugs.push("Bionic Legs");
+			gangAugs.push("Bionic Spine");
+			gangAugs.push("BrachiBlades");
+			gangAugs.push("Nanofiber Weave");
+			gangAugs.push("Synthetic Heart");
+			gangAugs.push("Synfibril Muscle");
+			gangAugs.push("Graphene Bone Lacings");
+		}
+    }
+	//getEquipNames() END
+	//equipUpgrade() Begin
+	async function equipUpgrade(memName) {
+		if(debug){ns.tprint('DEBUG: equipUpgrade() for : ' + memName)}
+		let memInfo = ns.gang.getMemberInformation(memName);
+		let gangInfo = ns.gang.getGangInformation();
+		if(gangInfo.isHacking) {
+			for(let i = gangRootkit.length; i >= 0; i--) {
+				if(memInfo.upgrades.includes(gangRootkit[i])) {
+					if(debug){ns.tprint(gangRootkit[i] + ' already equipped!')}
+				}
+				else if(ns.gang.getEquipmentCost(gangRootkit[i]) <= (ns.getServerMoneyAvailable('home') / moneyReserveRatio)) {
+					if(debug){ns.tprint('DEBUG: equipUpgrade() buy item/name: '+ gangRootkit[i] + ' ' + memName)}
+					ns.gang.purchaseEquipment(memName,gangRootkit[i]);
+				}
+				await ns.sleep(100);
+			}
+			await ns.sleep(100);
+			for(let i = gangAugs.length; i >= 0; i--) {
+				if(memInfo.upgrades.includes(gangAugs[i])) {
+					if(debug){ns.tprint(gangAugs[i] + ' already installed!')}
+				}
+				else if(ns.gang.getEquipmentCost(gangAugs[i]) <= (ns.getServerMoneyAvailable('home') / 2)) {
+					if(debug){ns.tprint('DEBUG: equipUpgrade() buy item/name: '+ gangAugs[i] + ' ' + memName)}
+					ns.gang.purchaseEquipment(memName,gangAugs[i]);
+				}
+				await ns.sleep(100);
+			}
+		} else {
+			for(let i = gangWep.length; i >= 0; i--) {
+				if(memInfo.upgrades.includes(gangWep[i])) {
+					if(debug){ns.tprint(gangWep[i] + ' already equipped!')}
+				}
+				else if(ns.gang.getEquipmentCost(gangWep[i]) <= (ns.getServerMoneyAvailable('home') / moneyReserveRatio)) {
+					if(debug){ns.tprint('DEBUG: equipUpgrade() buy item/name: '+ gangWep[i] + ' ' + memName)}
+					ns.gang.purchaseEquipment(memName,gangWep[i]);
+				}
+				await ns.sleep(100);
+			}
+			await ns.sleep(100);
+			for(let i = gangArmor.length; i >= 0; i--) {
+				if(memInfo.upgrades.includes(gangArmor[i])) {
+					if(debug){ns.tprint(gangArmor[i] + ' already equipped!')}
+				}
+				else if(ns.gang.getEquipmentCost(gangArmor[i]) <= (ns.getServerMoneyAvailable('home') / moneyReserveRatio)) {
+					if(debug){ns.tprint('DEBUG: equipUpgrade() buy item/name: '+ gangArmor[i] + ' ' + memName)}
+					ns.gang.purchaseEquipment(memName,gangArmor[i]);
+				}
+				await ns.sleep(100);
+			}
+			await ns.sleep(100);
+			for(let i = gangVehicle.length; i >= 0; i--) {
+				if(memInfo.upgrades.includes(gangVehicle[i])) {
+					if(debug){ns.tprint(gangVehicle[i] + ' already equipped!')}
+				}
+				else if(ns.gang.getEquipmentCost(gangVehicle[i]) <= (ns.getServerMoneyAvailable('home') / moneyReserveRatio)) {
+					if(debug){ns.tprint('DEBUG: equipUpgrade() buy item/name: '+ gangVehicle[i] + ' ' + memName)}
+					ns.gang.purchaseEquipment(memName,gangVehicle[i]);
+				}
+				await ns.sleep(100);
+			}
+			await ns.sleep(100);
+			for(let i = gangAugs.length; i >= 0; i--) {
+				if(memInfo.upgrades.includes(gangAugs[i])) {
+					if(debug){ns.tprint(gangAugs[i] + ' already installed!')}
+				}
+				else if(ns.gang.getEquipmentCost(gangAugs[i]) <= (ns.getServerMoneyAvailable('home') / 2)) {
+					if(debug){ns.tprint('DEBUG: equipUpgrade() buy item/name: '+ gangAugs[i] + ' ' + memName)}
+					ns.gang.purchaseEquipment(memName,gangAugs[i]);
+				}
+				await ns.sleep(100);
+			}
+			await ns.sleep(100);
+			if(memInfo.str > 400) {
+				//Only installs Rootkits if set to HTraff jobs
+				for(let i = gangRootkit.length; i >= 0; i--) {
+					if(memInfo.upgrades.includes(gangRootkit[i])) {
+						if(debug){ns.tprint(gangRootkit[i] + ' already equipped!')}
+					}
+					else if(ns.gang.getEquipmentCost(gangRootkit[i]) <= (ns.getServerMoneyAvailable('home') / moneyReserveRatio)) {
+						if(debug){ns.tprint('DEBUG: equipUpgrade() buy item/name: '+ gangRootkit[i] + ' ' + memName)}
+						ns.gang.purchaseEquipment(memName,gangRootkit[i]);
+					}
+					await ns.sleep(100);
+				}
+			}
+		}
+		await ns.sleep(100);
+	}
+	//equipUpgrade() END
+	//augUpgrade() Begin
+	async function augUpgrade(memName) {
+		if(debug){ns.tprint('DEBUG: augUpgrade() for : ' + memName)}
+		let memInfo = ns.gang.getMemberInformation(memName);
+		let gangInfo = ns.gang.getGangInformation();
+
+	}
+	//augUpgrade() END
 }
 //Random INT generator
 function getRandomInt(max) {
