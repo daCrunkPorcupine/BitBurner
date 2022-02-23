@@ -5,6 +5,7 @@ const growthThreadIncrease = 0.004;
 const hackThreadIncrease = 0.002;
 var all_exes = false;
 const use_share = false;
+const fileDir = 'src/txt/'
 const checkDataFile = "auto_serverscan_data.txt";
 //Debug Flag
 const debug = false;
@@ -394,7 +395,7 @@ export async function main(ns) {
     
     //reserveMoney() Begin
     async function reserveMoney() {
-        let player_money = ns.getServerMoneyAvailable("home");
+        let player_money = ns.getServerMoneyAvailable('home');
         if (!doesFileExist("SQLInject.exe","home")) {
             if (player_money >= 200000000) return true;
         }
