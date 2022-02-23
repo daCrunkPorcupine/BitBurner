@@ -33,6 +33,11 @@ export async function main(ns) {
         //Scanner for all servers
 		var hosts = ["home"];
 		var seen = ["darkweb"].concat(ns.getPurchasedServers());
+        for(let i = 0; i < 25; i++) {
+            let hacknetName = 'hacknet-node-' + i;
+            seen.push(hacknetName);
+            await ns.sleep(100)
+        }
 		var player_servers = ns.getPurchasedServers();
 		while (hosts.length > 0) {
 			var h = hosts.shift();
