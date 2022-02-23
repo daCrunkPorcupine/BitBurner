@@ -36,6 +36,7 @@ const memberNames = [
 ];
 const fileDir = 'src/txt/'
 const moneyReserveRatio = 10;
+const statMult = 1.5;
 var gangWep = [];
 var gangArmor = [];
 var gangVehicle = [];
@@ -119,7 +120,6 @@ export async function main(ns) {
 			ascend_result = ns.gang.getAscensionResult(members[i]);
 			if(ascend_result != null) {
 				//Ascend
-				let statMult = 1.35;
 				if (gangInfo.isHacking && ascend_result.hack > statMult) {
 					if(debug){ns.tprint("DEBUG: Ascend Member: " + members[i])}
 					ns.gang.ascendMember(members[i]);
