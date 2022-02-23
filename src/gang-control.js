@@ -59,13 +59,14 @@ export async function main(ns) {
 				ns.tail('/src/gang-crime.js');
 				await ns.sleep(100);
 				ns.tail('/src/gang-control.js');
+				await ns.joinFaction('Slum Snakes');
 			}
 		} else {
 			var karma_level = -54001;
 			//if(debug){ns.tprint("DEBUG: var karma_level = " + karma_level)}
 		}
 		
-		if (!ns.gang.inGang() && karma_level < -54000) {
+		if (!ns.gang.inGang() && karma_level <= -54000) {
 			if(debug){ns.tprint("DEBUG: No gang detected, creating gang")}
 			ns.gang.createGang('NiteSec');
 			await ns.sleep(100);
@@ -109,8 +110,6 @@ export async function main(ns) {
 			if(ascend_result != null) {
 				//Ascend
 				let statMult = 1.35;
-				//ns.gang.ascendMember(members[i]);
-				//ns.tprint("Ascend_Result: " + ascend_result.hack + "; Member Stat: " + memberStats.hack_asc_mult);
 				if (gangInfo.isHacking && ascend_result.hack > statMult) {
 					if(debug){ns.tprint("DEBUG: Ascend Member: " + members[i])}
 					ns.gang.ascendMember(members[i]);
@@ -145,10 +144,10 @@ export async function main(ns) {
 				//IDEA: average stats for threshold check
 				if (memberStats.str < training_threshold) {
 					task = 'Train Combat';
-				} else if (memberStats.str > 400 && members.length > 11 && rep_grind.length < 2 && factionRep < factionRepThreshold) {
+				} /** else if (memberStats.str > 400 && members.length > 11 && rep_grind.length < 2 && factionRep < factionRepThreshold) {
 					task = 'Terrorism';
 					rep_grind.push(members[i]);
-				} else if (memberStats.str > 400) {
+				} **/ else if (memberStats.str > 400) {
 					task = 'Human Trafficking';
 				} else if (memberStats.str > 200) {
 					task = 'Traffick Illegal Arms';
@@ -177,7 +176,7 @@ export async function main(ns) {
 				}
 			}
 			//At max gang, start setting territory warfare
-			if (!gangInfo.isHacking && members.length >= 12 && memberStats.str >= 250) {
+			if (!gangInfo.isHacking && members.length >= 12 && memberStats.str >= 650) {
 				if (i == members.length - 1 || i == members.length - 2 || i == members.length - 3) {
 					territoryWarfare.push(members[i]);
 					task = 'Territory Warfare';
