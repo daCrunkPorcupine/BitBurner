@@ -406,22 +406,22 @@ export async function main(ns) {
         if (ns.hasRootAccess('CSEC') == true && (ns.getServer('CSEC')).backdoorInstalled == false) {
             await ns.exec('src/server-search.js','home',1,'CSEC');
             await ns.sleep(150);
-            //await ns.joinFaction('CyberSec');
         }
         if (ns.hasRootAccess('avmnite-02h') == true && (ns.getServer('avmnite-02h')).backdoorInstalled == false) {
             await ns.exec('src/server-search.js','home',1,'avmnite-02h');
             await ns.sleep(150);
-            //await ns.joinFaction('NiteSec');
         }
         if (ns.hasRootAccess('I.I.I.I') == true && (ns.getServer('I.I.I.I')).backdoorInstalled == false) {
             await ns.exec('src/server-search.js','home',1,'I.I.I.I');
             await ns.sleep(150);
-            //await ns.joinFaction('The Black Hand');
         }
         if (ns.hasRootAccess('run4theh111z') == true && (ns.getServer('run4theh111z')).backdoorInstalled == false) {
             await ns.exec('src/server-search.js','home',1,'run4theh111z');
             await ns.sleep(150);
-            //await ns.joinFaction('BitRunners');
+        }
+        if (ns.hasRootAccess('w0r1d_d43m0n') == true) {
+            await ns.exec('src/server-search.js','home',1,'w0r1d_d43m0n');
+            await ns.sleep(150);
         }
         
     }
@@ -574,6 +574,11 @@ export async function main(ns) {
 
         await runBackdoor();
         await sellHash();
+        await ns.sleep(100);
+        await ns.joinFaction('CyberSec');
+        await ns.joinFaction('NiteSec');
+        await ns.joinFaction('BitRunners');
+        await ns.joinFaction('The Black Hand');
 
         /**
         if (ns.getPurchasedServers().length != player_server_max) {
