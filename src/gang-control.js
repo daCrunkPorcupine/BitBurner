@@ -9,34 +9,39 @@ const debug = false;
 const factionRepThreshold = 1875000
 // create list of names
 const memberNames = [
-	"cliffo", //1
-	"the raccoon", //2
-	"steak sauce", //3
-	"the jackhammer", //4
-	"the bulldozer", //5
-	"the dumptruck", //6
-	"the crane", //7
-	"cleveland steamer", //8
-	"kentucky klondike bar", //9
-	"alabama hot pocket", //10
-	"flying camel", //11
-	"kennebunkport surprise", //12
-	"ballcuzi", //13
-	"miles dyson", //14
-	"sarah connor", //15
-	"john connor", //16
-	"T-800", //17
-	"T-1000", //18
-	"hunter killer", //19
-	"mongo", //20
-	"8=D", //21
-	"peenis8=D", //22
-	"goldfeesh", //23
-	"goldfith", //24
+	'cliffo', //1
+	'the raccoon', //2
+	'steak sauce', //3
+	'the jackhammer', //4
+	'the bulldozer', //5
+	'the dumptruck', //6
+	'the crane', //7
+	'cleveland steamer', //8
+	'kentucky klondike bar', //9
+	'alabama hot pocket', //10
+	'flying camel', //11
+	'kennebunkport surprise', //12
+	'ballcuzi', //13
+	'miles dyson', //14
+	'sarah connor', //15
+	'john connor', //16
+	'T-800', //17
+	'T-1000', //18
+	'hunter killer', //19
+	'mongo', //20
+	'8=D', //21
+	'peenis8=D', //22
+	'goldfeesh', //23
+	'goldfith', //24
+	'peetypeet', //25
+	'phil mccrackin', //26
+	'phil atio', //27
+	'sue shi', //28
 ];
 const fileDir = 'src/txt/'
 const moneyReserveRatio = 10;
-const statMult = 1.5;
+const statMult = 2;
+const territoryTarget = 0.8;
 var gangWep = [];
 var gangArmor = [];
 var gangVehicle = [];
@@ -101,7 +106,7 @@ export async function main(ns) {
             var member_random = possibleNames[getRandomInt(possibleNames.length)];
             ns.gang.recruitMember(member_random);
 			if(debug){ns.tprint("DEBUG: Recruit Member: " + member_random)}
-            await ns.sleep(300);
+            await ns.sleep(100);
         }
 		
 		//Manages individual members
@@ -115,7 +120,7 @@ export async function main(ns) {
 			let ascend_result = null;
 			let memberStats = ns.gang.getMemberInformation(members[i]);
 			//Resets task to prevent loops from assigning too many incorrect jobs
-			ns.gang.setMemberTask(members[i], "Unassigned");
+			//ns.gang.setMemberTask(members[i], "Unassigned");
 			//Checks for possible Ascend
 			ascend_result = ns.gang.getAscensionResult(members[i]);
 			if(ascend_result != null) {
@@ -145,6 +150,7 @@ export async function main(ns) {
 			}
 			await ns.sleep(100);
 			await equipUpgrade(members[i]);
+			await ns.sleep(100);
 			//ns.tprint(memberStats);
 			if (gangInfo.isHacking) {
 				if (memberStats.hack < training_threshold) {
@@ -164,10 +170,10 @@ export async function main(ns) {
 				//IDEA: average stats for threshold check
 				if (memberStats.str < training_threshold) {
 					task = 'Train Combat';
-				} /** else if (memberStats.str > 400 && members.length > 11 && rep_grind.length < 2 && factionRep < factionRepThreshold) {
+				} else if (memberStats.str > 400 && members.length > 11 && rep_grind.length < 2 && factionRep < factionRepThreshold) {
 					task = 'Terrorism';
 					rep_grind.push(members[i]);
-				} **/ else if (memberStats.str > 400) {
+				} else if (memberStats.str > 400) {
 					task = 'Human Trafficking';
 				} else if (memberStats.str > 200) {
 					task = 'Traffick Illegal Arms';
@@ -199,14 +205,15 @@ export async function main(ns) {
 			if (!gangInfo.isHacking && members.length >= 12 && memberStats.str >= 650) {
 				if (i == members.length - 1 || i == members.length - 2 || i == members.length - 3) {
 					territoryWarfare.push(members[i]);
-					task = 'Territory Warfare';
+					let chk_task = await terWarfare(members[i]);
+					if (chk_task != null) task = chk_task;
 				}
 				
 			}
 			//Sets member task
 			ns.gang.setMemberTask(members[i], task);
 
-			await ns.sleep(6000);
+			await ns.sleep(1000);
 		}
 
 	}
@@ -232,11 +239,13 @@ export async function main(ns) {
 			gangAugs.push("Bionic Arms");
 			gangAugs.push("Bionic Legs");
 			gangAugs.push("Bionic Spine");
+			/**
 			gangAugs.push("BrachiBlades");
 			gangAugs.push("Nanofiber Weave");
 			gangAugs.push("Synthetic Heart");
 			gangAugs.push("Synfibril Muscle");
 			gangAugs.push("Graphene Bone Lacings");
+			**/
 		}
     }
 	//getEquipNames() END
@@ -261,7 +270,7 @@ export async function main(ns) {
 				if(memInfo.upgrades.includes(gangAugs[i])) {
 					if(debug){ns.tprint(gangAugs[i] + ' already installed!')}
 				}
-				else if(ns.gang.getEquipmentCost(gangAugs[i]) <= (ns.getServerMoneyAvailable('home') / 2)) {
+				else if(ns.gang.getEquipmentCost(gangAugs[i]) <= (ns.getServerMoneyAvailable('home') / 4)) {
 					if(debug){ns.tprint('DEBUG: equipUpgrade() buy item/name: '+ gangAugs[i] + ' ' + memName)}
 					ns.gang.purchaseEquipment(memName,gangAugs[i]);
 				}
@@ -305,7 +314,7 @@ export async function main(ns) {
 				if(memInfo.upgrades.includes(gangAugs[i])) {
 					if(debug){ns.tprint(gangAugs[i] + ' already installed!')}
 				}
-				else if(ns.gang.getEquipmentCost(gangAugs[i]) <= (ns.getServerMoneyAvailable('home') / 2)) {
+				else if(ns.gang.getEquipmentCost(gangAugs[i]) <= (ns.getServerMoneyAvailable('home') / 4)) {
 					if(debug){ns.tprint('DEBUG: equipUpgrade() buy item/name: '+ gangAugs[i] + ' ' + memName)}
 					ns.gang.purchaseEquipment(memName,gangAugs[i]);
 				}
@@ -329,14 +338,36 @@ export async function main(ns) {
 		await ns.sleep(100);
 	}
 	//equipUpgrade() END
-	//augUpgrade() Begin
-	async function augUpgrade(memName) {
-		if(debug){ns.tprint('DEBUG: augUpgrade() for : ' + memName)}
-		let memInfo = ns.gang.getMemberInformation(memName);
+	//terWarfare() Begin
+	async function terWarfare(memName) {
 		let gangInfo = ns.gang.getGangInformation();
-
+		let otherGangs = ns.gang.getOtherGangInformation();
+		let members = ns.gang.getMemberNames();
+		let memberStats = ns.gang.getMemberInformation(memName);
+		let avgWinChance = 0;
+		let totWinChance = 0;
+		let totalActiveGangs = 0;
+		for(let otherGang in otherGangs) {
+			if(otherGangs[otherGang].territory == 0 || otherGang == gangInfo.faction) continue;
+			let winChance = gangInfo.power / (gangInfo.power + otherGangs[otherGang].power);
+			totWinChance += winChance;
+			totalActiveGangs++;
+		}
+		avgWinChance = totWinChance / totalActiveGangs;
+		if(avgWinChance >= 0.55 && gangInfo.territory < territoryTarget) {
+			//Enable Warfare
+			ns.gang.setTerritoryWarfare(true);
+		} else {
+			ns.gang.setTerritoryWarfare(false);
+		}
+		//At max gang, start setting territory warfare
+		if (members.length >= 12 && memberStats.str >= 650 && gangInfo.territory < 0.95) {
+			return 'Territory Warfare';
+		}
+		await ns.sleep(100);
 	}
-	//augUpgrade() END
+	//terWarfare() END
+	
 }
 //Random INT generator
 function getRandomInt(max) {
