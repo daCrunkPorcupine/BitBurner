@@ -585,6 +585,8 @@ export async function main(ns) {
         await ns.joinFaction('NiteSec');
         await ns.joinFaction('BitRunners');
         await ns.joinFaction('The Black Hand');
+        await ns.joinFaction('Daedalus');
+        await ns.joinFaction('Netburners');
 
         /**
         if (ns.getPurchasedServers().length != player_server_max) {
