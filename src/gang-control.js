@@ -69,12 +69,13 @@ export async function main(ns) {
 		if (!in_BN2) {
 			var karma_level = ns.heart.break();
 			if (karma_level > -54000) {
-				ns.exec("src/gang-crime.js", "home");
-				await ns.sleep(100);
-				ns.tail('/src/gang-crime.js');
-				await ns.sleep(100);
+				if (ns.isRunning('/src/gang-crime.js','home') == false) {
+					ns.exec('src/gang-crime.js', 'home');
+					await ns.sleep(100);
+					ns.tail('/src/gang-crime.js');
+					await ns.sleep(100);
+				}
 				ns.tail('/src/gang-control.js');
-				await ns.joinFaction('Slum Snakes');
 			}
 		} else {
 			var karma_level = -54001;
@@ -103,14 +104,16 @@ export async function main(ns) {
 		//Checks if any member recruitment is open
 		while(ns.gang.canRecruitMember()) {
             var possibleNames = memberNames.filter(name => !members.includes(name));
+			await ns.sleep(100);
             var member_random = possibleNames[getRandomInt(possibleNames.length)];
+			await ns.sleep(100);
             ns.gang.recruitMember(member_random);
 			if(debug){ns.tprint("DEBUG: Recruit Member: " + member_random)}
             await ns.sleep(100);
         }
 		
 		//Manages individual members
-		var members = ns.gang.getMemberNames();
+		members = ns.gang.getMemberNames();
 		let training_threshold = 100;
 		let rep_grind = [];
 		let territoryWarfare = [];
@@ -170,10 +173,13 @@ export async function main(ns) {
 				//IDEA: average stats for threshold check
 				if (memberStats.str < training_threshold) {
 					task = 'Train Combat';
-				} else if (memberStats.str > 400 && members.length > 11 && rep_grind.length < 2 && factionRep < factionRepThreshold) {
+				} else if (memberStats.str > 450 && members.length < 12) {
 					task = 'Terrorism';
 					rep_grind.push(members[i]);
-				} else if (memberStats.str > 400) {
+				} /**else if (memberStats.str > 450 && members.length > 11 && rep_grind.length < 2 && factionRep < factionRepThreshold) {
+					task = 'Terrorism';
+					rep_grind.push(members[i]);
+				}**/ else if (memberStats.str > 450) {
 					task = 'Human Trafficking';
 				} else if (memberStats.str > 200) {
 					task = 'Traffick Illegal Arms';
@@ -203,12 +209,8 @@ export async function main(ns) {
 			}
 			//At max gang, start setting territory warfare
 			if (!gangInfo.isHacking && members.length >= 12 && memberStats.str >= 650) {
-				if (i == members.length - 1 || i == members.length - 2 || i == members.length - 3) {
-					territoryWarfare.push(members[i]);
-					let chk_task = await terWarfare(members[i]);
-					if (chk_task != null) task = chk_task;
-				}
-				
+				let chk_task = await terWarfare(members[i],i);
+				if (chk_task != null) task = chk_task;
 			}
 			//Sets member task
 			ns.gang.setMemberTask(members[i], task);
@@ -339,7 +341,7 @@ export async function main(ns) {
 	}
 	//equipUpgrade() END
 	//terWarfare() Begin
-	async function terWarfare(memName) {
+	async function terWarfare(memName,memIndex) {
 		let gangInfo = ns.gang.getGangInformation();
 		let otherGangs = ns.gang.getOtherGangInformation();
 		let members = ns.gang.getMemberNames();
@@ -354,16 +356,21 @@ export async function main(ns) {
 			totalActiveGangs++;
 		}
 		avgWinChance = totWinChance / totalActiveGangs;
-		if(avgWinChance >= 0.55 && gangInfo.territory < territoryTarget) {
+		if(avgWinChance >= 0.65 && gangInfo.territory < territoryTarget) {
 			//Enable Warfare
 			ns.gang.setTerritoryWarfare(true);
+			if (memIndex == members.length - 1 || memIndex == members.length - 2 || memIndex == members.length - 3) {
+				return 'Territory Warfare';
+			}
 		} else {
 			ns.gang.setTerritoryWarfare(false);
+			await ns.sleep(100);
+			//At max gang, start setting territory warfare
+			if (members.length >= 12 && memberStats.str >= 650 && gangInfo.territory < territoryTarget) {
+				return 'Territory Warfare';
+			}
 		}
-		//At max gang, start setting territory warfare
-		if (members.length >= 12 && memberStats.str >= 650 && gangInfo.territory < 0.95) {
-			return 'Territory Warfare';
-		}
+
 		await ns.sleep(100);
 	}
 	//terWarfare() END
