@@ -582,11 +582,19 @@ export async function main(ns) {
         await sellHash();
         await ns.sleep(100);
         await ns.joinFaction('CyberSec');
+        await ns.sleep(100);
         await ns.joinFaction('NiteSec');
+        await ns.sleep(100);
         await ns.joinFaction('BitRunners');
+        await ns.sleep(100);
         await ns.joinFaction('The Black Hand');
+        await ns.sleep(100);
         await ns.joinFaction('Daedalus');
+        await ns.sleep(100);
         await ns.joinFaction('Netburners');
+        await ns.sleep(100);
+        await ns.joinFaction('Slum Snakes');
+        
 
         /**
         if (ns.getPurchasedServers().length != player_server_max) {
