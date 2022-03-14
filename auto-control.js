@@ -155,7 +155,7 @@ export async function main(ns) {
 			var server_hacking_lvl = ns.getServerRequiredHackingLevel(hack_target);
             //Checks if hack_target is the top index/phat target, uses max threads available for hack to allow re-grow
             if (hack_target==targets_value[0]["servername"] && srv_moneypct > 70) {
-                var numThreads = Math.floor((ns.getServerMaxRam("home") - ns.getServerUsedRam("home")) / ns.getScriptRam("auto-hack.js"));
+                var numThreads = Math.floor((ns.getServerMaxRam("home") - ns.getServerUsedRam("home")) * ram_homereserve / ns.getScriptRam("auto-hack.js"));
                 if (numThreads > 0) {
                     ns.exec("auto-hack.js", "home", numThreads, hack_target);
                     if(debug){ns.tprint("DEBUG: AutoHack() PHAT TARGET MAX THREADS auto-hack.js on: " + hack_target + " " + numThreads + " threads")}
