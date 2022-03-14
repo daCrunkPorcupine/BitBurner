@@ -48,6 +48,7 @@ var gangVehicle = [];
 var gangRootkit = [];
 var gangAugs = [];
 var port = 2;
+var karma_level;
 export async function main(ns) {
 	while (true) {
 		let gang_valid = ns.gang.inGang();
@@ -65,6 +66,7 @@ export async function main(ns) {
 	}
 	//checkGang() Begin
 	async function checkGang() {
+		karma_level = ns.heart.break();
 		if (!ns.gang.inGang() && karma_level <= -54000) {
 			if(debug){ns.tprint("DEBUG: No gang detected, creating gang")}
 			ns.gang.createGang('Slum Snakes');

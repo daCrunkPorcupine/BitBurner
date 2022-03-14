@@ -27,6 +27,6 @@ async function sleeveGangPrep(ns,sleeveIndex) {
     } else if (sleeveStat.agility < combatStatLimit) {
         ns.sleeve.setToGymWorkout(sleeveIndex,'Powerhouse Gym','Train Agility');
     } else {
-        ns.sleeve.setToCommitCrime(sleeveIndex,'Homicide');
+        //ns.sleeve.setToCommitCrime(sleeveIndex,'Homicide');
     }
 }
