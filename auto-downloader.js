@@ -27,6 +27,7 @@ const filessource = [
   'server-search.js',
   'hacknet-sellhash.js',
   'hacknet-upgrade.js',
+  'sleeve-control.js',
 ]
 const oldfiles = [
   'auto-target.js',
