@@ -556,6 +556,34 @@ export async function main(ns) {
             if(debug){ns.tprint("DEBUG: scanner_task==" + scanner_task)}
         }
         **/
+        //Control script calls
+        if (useGang) {
+            if (!inBN2) {
+                karma_level = ns.heart.break();
+                if (karma_level > -54001) {
+                    if (ns.isRunning('/src/gang-crime.js','home') == false) {
+                        ns.exec('src/gang-crime.js', 'home');
+                        await ns.sleep(100);
+                        ns.tail('/src/gang-crime.js');
+                        await ns.sleep(100);
+                    }
+                    ns.tail('auto-control.js');
+                }
+            } else {
+                karma_level = -54001;
+            }
+            if (karma_level <= -54000) {
+                if(debug){ns.tprint("DEBUG: starting /src/gang-control.js")}
+                await ns.exec('/src/gang-control.js','home',1);
+            }
+        }
+        //Sleeve Management
+        if (useSleeve) {
+            if ((ns.getServerMaxRam('home') - ns.getServerUsedRam('home')) > ns.getScriptRam('/src/sleeve-control.js')) {
+                await ns.exec('/src/sleeve-control.js', 'home', 1, useGang);
+                await ns.sleep(100);
+            }
+        }
         if (!all_exes) {
             if(debug){ns.tprint("DEBUG: starting buyEXEs()")}
             all_exes = await buyEXEs();
@@ -590,27 +618,6 @@ export async function main(ns) {
             await AutoTarget(target_servers);
         }
 
-        //Control script calls
-        if (useGang) {
-            if (!inBN2) {
-                karma_level = ns.heart.break();
-                if (karma_level > -54001) {
-                    if (ns.isRunning('/src/gang-crime.js','home') == false) {
-                        ns.exec('src/gang-crime.js', 'home');
-                        await ns.sleep(100);
-                        ns.tail('/src/gang-crime.js');
-                        await ns.sleep(100);
-                    }
-                    ns.tail('auto-control.js');
-                }
-            } else {
-                karma_level = -54001;
-            }
-            if (karma_level <= -54000) {
-                if(debug){ns.tprint("DEBUG: starting /src/gang-control.js")}
-                await ns.exec('/src/gang-control.js','home',1);
-            }
-        }
         if (useHacknet) {
             if(debug){ns.tprint("DEBUG: starting /src/hacknet-upgrade.js")}
             await ns.exec('/src/hacknet-upgrade.js','home',1,hacknetCostMax);
@@ -624,18 +631,6 @@ export async function main(ns) {
             }
             ns.exec('/src/buy-servers.js','home',1,servername_prefix,ram_size);
         }
-        //Sleeve Management
-        if (useSleeve) {
-            if ((ns.getServerMaxRam('home') - ns.getServerUsedRam('home')) > ns.getScriptRam('/src/sleeve-control.js')) {
-                await ns.exec('/src/sleeve-control.js', 'home', 1, useGang);
-                await ns.sleep(100);
-            }
-        }
-        if (ns.getServerMaxRam('home') < 1024 && ns.getServerMoneyAvailable('home') > ns.getUpgradeHomeRamCost()) {
-            ns.upgradeHomeRam();
-        }
-        
-
         await runBackdoor();
         await sellHash();
         await ns.sleep(100);
@@ -653,7 +648,9 @@ export async function main(ns) {
         await ns.joinFaction('Netburners');
         await ns.sleep(100);
         await ns.joinFaction('Slum Snakes');
-        
+        if (ns.getServerMaxRam('home') < 1024 && ns.getServerMoneyAvailable('home') > ns.getUpgradeHomeRamCost()) {
+            ns.upgradeHomeRam();
+        }
         if (focusRepGain) {
             if(debug){ns.tprint("DEBUG: starting focusRep()")}
             await focusRep('CyberSec');
