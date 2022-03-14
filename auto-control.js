@@ -1,9 +1,25 @@
 /** @param {import(".").NS } ns */
 //CONSTANTS
+//These values trigger specific modules
+const useGang = true;
+const useHacknet = true;
+const useBladerunner = false;
+const useHacking = true;
+const useServerBuy = true;
+const useSleeve = true;
+const focusRepGain = true;
+//Hacking variables
 const weakenThreadPower = 0.05;
 const growthThreadIncrease = 0.004;
 const hackThreadIncrease = 0.002;
+//Hacknet variables
+const hacknetCostMax = 35000000;
+
 var all_exes = false;
+var port;
+//IDEA: Query player for BN
+const inBN2 = false;
+var karma_level;
 const use_share = false;
 const fileDir = 'src/txt/'
 const checkDataFile = "auto_serverscan_data.txt";
@@ -13,19 +29,19 @@ const debug = false;
 //Player Servers
 const servername_prefix = 'jus';
 //IDEA: Pull max from ns.getBitNodeMultipliers()
-//ex "PurchasedServerLimit":1 = multiplier of 1*25
-const player_server_max = 25;
+var player_server_max;
 
 export async function main(ns) {
     //Executes all automation scripts
-	var targets = [];
+    var targets = [];
     var targets_value = [];
     var target_servers = [];
     var botnet_list = [];
+    player_server_max = ns.getPurchasedServerLimit();
 	ns.rm(checkDataFile);
 	await ns.write(checkDataFile, "n00dles", "w");
     //RAM usage limit % for calling individual targets
-    var ram_homereserve = 0.7;
+    var ram_homereserve = 0.6;
     //scanner_task used to delay AutoScanner()
     var scanner_task = 0;
 
@@ -506,21 +522,6 @@ export async function main(ns) {
     }
     //buyEXEs() END
 
-    //buyServers() Begin
-    async function buyServers() {
-        if (ns.getServerMaxRam('home') >= 16384) {
-            var ram_size = 4096;
-        } else if (ns.getServerMaxRam('home') >= 4096) {
-            var ram_size = 2048;
-        } else if (ns.getServerMaxRam('home') >= 1024) {
-            var ram_size = 512;
-        } else {
-            var ram_size = ns.getServerMaxRam('home');
-        }
-        ns.exec('src/buy-servers.js','home',1,servername_prefix,ram_size);
-    }
-    //buyServers() END
-
     //sellHash() Begin
     async function sellHash() {
         let upgradeName = "Sell for Money";
@@ -530,6 +531,17 @@ export async function main(ns) {
         }
     }
     //sellHash() END
+
+    //focusRep() Begin
+    async function focusRep(facName) {
+        karma_level = ns.heart.break();
+        if(useGang && karma_level > -54001) {
+            //Do nothing
+        } else if(!ns.getPlayer().isWorking) {
+            ns.workForFaction(facName,'Hacking Contracts');
+        }
+    }
+    //focusRep() END
 
     //While loop tiggers all processes
     while (true) {
@@ -578,9 +590,56 @@ export async function main(ns) {
             await AutoTarget(target_servers);
         }
 
+        //Control script calls
+        if (useGang) {
+            if (!inBN2) {
+                karma_level = ns.heart.break();
+                if (karma_level > -54001) {
+                    if (ns.isRunning('/src/gang-crime.js','home') == false) {
+                        ns.exec('src/gang-crime.js', 'home');
+                        await ns.sleep(100);
+                        ns.tail('/src/gang-crime.js');
+                        await ns.sleep(100);
+                    }
+                    ns.tail('auto-control.js');
+                }
+            } else {
+                karma_level = -54001;
+            }
+            if (karma_level <= -54000) {
+                if(debug){ns.tprint("DEBUG: starting /src/gang-control.js")}
+                await ns.exec('/src/gang-control.js','home',1);
+            }
+        }
+        if (useHacknet) {
+            if(debug){ns.tprint("DEBUG: starting /src/hacknet-upgrade.js")}
+            await ns.exec('/src/hacknet-upgrade.js','home',1,hacknetCostMax);
+        }
+        if (useServerBuy && ns.getPurchasedServers().length != player_server_max) {
+            if(debug){ns.tprint("DEBUG: starting buyServers()")}
+            if (ns.getServerMaxRam('home') >= 16384) {
+                var ram_size = 'MAX';
+            } else {
+                var ram_size = ns.getServerMaxRam('home') / 2;
+            }
+            ns.exec('/src/buy-servers.js','home',1,servername_prefix,ram_size);
+        }
+        //Sleeve Management
+        if (useSleeve) {
+            if ((ns.getServerMaxRam('home') - ns.getServerUsedRam('home')) > ns.getScriptRam('/src/sleeve-control.js')) {
+                await ns.exec('/src/sleeve-control.js', 'home', 1, useGang);
+                await ns.sleep(100);
+            }
+        }
+        if (ns.getServerMaxRam('home') < 1024 && ns.getServerMoneyAvailable('home') > ns.getUpgradeHomeRamCost()) {
+            ns.upgradeHomeRam();
+        }
+        
+
         await runBackdoor();
         await sellHash();
         await ns.sleep(100);
+        //IDEA: Query factions via ns.checkFactionInvitations() method
         await ns.joinFaction('CyberSec');
         await ns.sleep(100);
         await ns.joinFaction('NiteSec');
@@ -595,24 +654,10 @@ export async function main(ns) {
         await ns.sleep(100);
         await ns.joinFaction('Slum Snakes');
         
-
-        /**
-        if (ns.getPurchasedServers().length != player_server_max) {
-            if(debug){ns.tprint("DEBUG: starting buyServers()")}
-            await buyServers();
-        } else if (ns.getPurchasedServers().length == player_server_max) {
-            if (ns.isRunning('src/auto-share.js',server_name) == false) {
-                let server_name = server_prefix + 'share';
-                ns.killall(server_name);
-                await ns.sleep(100);
-                let numThreads = Math.floor((ns.getServerMaxRam(server_name) - ns.getServerUsedRam(server_name)) / ns.getScriptRam('src/auto-share.js'));
-                await ns.scp('src/auto-share.js', 'home', server_name);
-                await ns.sleep(100);
-                ns.exec('src/auto-share.js',server_name,numThreads);
-            }
-
+        if (focusRepGain) {
+            if(debug){ns.tprint("DEBUG: starting focusRep()")}
+            await focusRep('CyberSec');
         }
-        **/
         //Appends increment to scanner task if we skip scan on every pass                
         await ns.sleep(150);
         scanner_task++;

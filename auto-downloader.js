@@ -23,8 +23,10 @@ const filessource = [
   'buy-servers.js',
   'gang-control.js',
   'gang-crime.js',
+  'gang-territory.js',
   'server-search.js',
   'hacknet-sellhash.js',
+  'hacknet-upgrade.js',
 ]
 const oldfiles = [
   'auto-target.js',

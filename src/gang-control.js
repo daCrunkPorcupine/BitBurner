@@ -2,7 +2,7 @@
 //CONSTANTS
 //IDEA: Query player for BN
 //ns.getPlayer() - "bitNodeN"
-const in_BN2 = false;
+const inBN2 = false;
 //Debug Flag
 const debug = false;
 //Maximum rep to grind with gang faction. IDEA: Query most expensive augment dynamically
@@ -40,14 +40,14 @@ const memberNames = [
 ];
 const fileDir = 'src/txt/'
 const moneyReserveRatio = 10;
-const statMult = 2;
-const territoryTarget = 0.8;
+var statMult = 2;
+const territoryTarget = 0.95;
 var gangWep = [];
 var gangArmor = [];
 var gangVehicle = [];
 var gangRootkit = [];
 var gangAugs = [];
-
+var port = 2;
 export async function main(ns) {
 	while (true) {
 		let gang_valid = ns.gang.inGang();
@@ -65,28 +65,11 @@ export async function main(ns) {
 	}
 	//checkGang() Begin
 	async function checkGang() {
-		//if(debug){ns.tprint("DEBUG: Starting checkGang()")}
-		if (!in_BN2) {
-			var karma_level = ns.heart.break();
-			if (karma_level > -54000) {
-				if (ns.isRunning('/src/gang-crime.js','home') == false) {
-					ns.exec('src/gang-crime.js', 'home');
-					await ns.sleep(100);
-					ns.tail('/src/gang-crime.js');
-					await ns.sleep(100);
-				}
-				ns.tail('/src/gang-control.js');
-			}
-		} else {
-			var karma_level = -54001;
-			//if(debug){ns.tprint("DEBUG: var karma_level = " + karma_level)}
-		}
-		
 		if (!ns.gang.inGang() && karma_level <= -54000) {
 			if(debug){ns.tprint("DEBUG: No gang detected, creating gang")}
-			ns.gang.createGang('NiteSec');
-			await ns.sleep(100);
 			ns.gang.createGang('Slum Snakes');
+			await ns.sleep(100);
+			ns.gang.createGang('NiteSec');
 			return true;
 		} else {
 			return false;
@@ -111,12 +94,12 @@ export async function main(ns) {
 			if(debug){ns.tprint("DEBUG: Recruit Member: " + member_random)}
             await ns.sleep(100);
         }
-		
+		if (gangInfo.territory > 0.98) statMult = 1.4;
 		//Manages individual members
 		members = ns.gang.getMemberNames();
 		let training_threshold = 100;
 		let rep_grind = [];
-		let territoryWarfare = [];
+		//let territoryWarfare = [];
 		for(let i = 0; i < members.length; i++) {
 			if(debug){ns.tprint("DEBUG: Processing Member: " + members[i])}
 			var task = null;
@@ -209,8 +192,16 @@ export async function main(ns) {
 			}
 			//At max gang, start setting territory warfare
 			if (!gangInfo.isHacking && members.length >= 12 && memberStats.str >= 650) {
-				let chk_task = await terWarfare(members[i],i);
-				if (chk_task != null) task = chk_task;
+				//let chk_task = await terWarfare(members[i],i);
+				if ((ns.getServerMaxRam('home') - ns.getServerUsedRam('home')) > ns.getScriptRam('/src/gang-territory.js')) {
+					await ns.exec('/src/gang-territory.js', 'home', 1, members[i], i);
+					//Waits until data is available in port
+					while(port.empty()) {
+						sleep(1000);
+					}
+				}
+				chk_task = await ns.readPort(port);
+				if (chk_task != null || chk_task != 'null') task = chk_task;
 			}
 			//Sets member task
 			ns.gang.setMemberTask(members[i], task);
@@ -241,13 +232,14 @@ export async function main(ns) {
 			gangAugs.push("Bionic Arms");
 			gangAugs.push("Bionic Legs");
 			gangAugs.push("Bionic Spine");
-			/**
 			gangAugs.push("BrachiBlades");
 			gangAugs.push("Nanofiber Weave");
 			gangAugs.push("Synthetic Heart");
 			gangAugs.push("Synfibril Muscle");
 			gangAugs.push("Graphene Bone Lacings");
-			**/
+			gangAugs.push("BitWire");
+			gangAugs.push("Neuralstimulator");
+			gangAugs.push("DataJack");
 		}
     }
 	//getEquipNames() END
@@ -340,6 +332,7 @@ export async function main(ns) {
 		await ns.sleep(100);
 	}
 	//equipUpgrade() END
+	/**
 	//terWarfare() Begin
 	async function terWarfare(memName,memIndex) {
 		let gangInfo = ns.gang.getGangInformation();
@@ -374,6 +367,7 @@ export async function main(ns) {
 		await ns.sleep(100);
 	}
 	//terWarfare() END
+	*/
 	
 }
 //Random INT generator
