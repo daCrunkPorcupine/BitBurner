@@ -533,12 +533,19 @@ export async function main(ns) {
     //sellHash() END
 
     //focusRep() Begin
-    async function focusRep(facName) {
+    async function focusRep() {
         karma_level = ns.heart.break();
         if(useGang && karma_level > -54001) {
             //Do nothing
         } else if(!ns.getPlayer().isWorking) {
-            ns.workForFaction(facName,'Hacking Contracts');
+            let playerFac = ns.getPlayer().factions;
+            var facWork;
+            if (playerFac.includes('Daedalus')) {
+                facWork = 'Daedalus';
+            } else {
+                facWork = 'CyberSec'
+            }
+            ns.workForFaction(facWork,'Hacking Contracts');
         }
     }
     //focusRep() END
@@ -653,7 +660,7 @@ export async function main(ns) {
         }
         if (focusRepGain) {
             if(debug){ns.tprint("DEBUG: starting focusRep()")}
-            await focusRep('CyberSec');
+            await focusRep();
         }
         //Appends increment to scanner task if we skip scan on every pass                
         await ns.sleep(150);

@@ -1,12 +1,12 @@
 /** @param {import(".").NS } ns */
 export async function main(ns) {
-	var memName = ns.args[0];
-	var memIndex = ns.args[1];
+	const port = ns.args[0];
+	const memName = ns.args[1];
+	const memIndex = ns.args[2];
+	const territoryTarget = ns.args[3];
 	//Maximum rep to grind with gang faction. IDEA: Query most expensive augment dynamically
 	const factionRepThreshold = 1875000
-	const territoryTarget = 0.95;
 	var jobTask = 'null';
-	var port;
 
 	let gangInfo = ns.gang.getGangInformation();
 	let otherGangs = ns.gang.getOtherGangInformation();

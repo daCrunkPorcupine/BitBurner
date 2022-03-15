@@ -41,18 +41,18 @@ const memberNames = [
 const fileDir = 'src/txt/'
 const moneyReserveRatio = 10;
 var statMult = 2;
-const territoryTarget = 0.95;
+const territoryTarget = 0.99;
 var gangWep = [];
 var gangArmor = [];
 var gangVehicle = [];
 var gangRootkit = [];
 var gangAugs = [];
-var port = 2;
+var port;
 var karma_level;
 export async function main(ns) {
 	while (true) {
 		let gang_valid = ns.gang.inGang();
-		if(!gang_valid) {
+		if (!gang_valid) {
 			//Attempts to create gang
 			await checkGang();
 		} else {
@@ -66,9 +66,8 @@ export async function main(ns) {
 	}
 	//checkGang() Begin
 	async function checkGang() {
-		karma_level = ns.heart.break();
-		if (!ns.gang.inGang() && karma_level <= -54000) {
-			if(debug){ns.tprint("DEBUG: No gang detected, creating gang")}
+		if (!ns.gang.inGang() && ns.heart.break() <= -54000) {
+			if (debug){ns.tprint("DEBUG: No gang detected, creating gang")}
 			ns.gang.createGang('Slum Snakes');
 			await ns.sleep(100);
 			ns.gang.createGang('NiteSec');
@@ -80,7 +79,7 @@ export async function main(ns) {
 	//checkGang() END
 	//gangManager() Begin
 	async function gangManager() {
-		if(debug){ns.tprint("DEBUG: Starting gangManager()")}
+		if (debug){ns.tprint("DEBUG: Starting gangManager()")}
 		var gangInfo = ns.gang.getGangInformation();
         var otherGangs = ns.gang.getOtherGangInformation();
 		var members = ns.gang.getMemberNames();
@@ -93,42 +92,40 @@ export async function main(ns) {
             var member_random = possibleNames[getRandomInt(possibleNames.length)];
 			await ns.sleep(100);
             ns.gang.recruitMember(member_random);
-			if(debug){ns.tprint("DEBUG: Recruit Member: " + member_random)}
+			if (debug){ns.tprint("DEBUG: Recruit Member: " + member_random)}
             await ns.sleep(100);
         }
-		if (gangInfo.territory > 0.98) statMult = 1.4;
+		if (gangInfo.territory > territoryTarget) statMult = 1.4;
 		//Manages individual members
 		members = ns.gang.getMemberNames();
 		let training_threshold = 100;
 		let rep_grind = [];
 		//let territoryWarfare = [];
-		for(let i = 0; i < members.length; i++) {
-			if(debug){ns.tprint("DEBUG: Processing Member: " + members[i])}
+		for (let i = 0; i < members.length; i++) {
+			if (debug){ns.tprint("DEBUG: Processing Member: " + members[i])}
 			var task = null;
 			let ascend_result = null;
 			let memberStats = ns.gang.getMemberInformation(members[i]);
-			//Resets task to prevent loops from assigning too many incorrect jobs
-			//ns.gang.setMemberTask(members[i], "Unassigned");
 			//Checks for possible Ascend
 			ascend_result = ns.gang.getAscensionResult(members[i]);
-			if(ascend_result != null) {
+			if (ascend_result != null) {
 				//Ascend
 				if (gangInfo.isHacking && ascend_result.hack > statMult) {
-					if(debug){ns.tprint("DEBUG: Ascend Member: " + members[i])}
+					if (debug){ns.tprint("DEBUG: Ascend Member: " + members[i])}
 					ns.gang.ascendMember(members[i]);
 					await ns.sleep(100);
 					//Refresh stats after ascend
 					memberStats = ns.gang.getMemberInformation(members[i]);
 				} else if (!gangInfo.isHacking) {
 					let ascendCt = 0;
-					if(ascend_result.str > statMult) ascendCt++
-					if(ascend_result.def > statMult) ascendCt++
-					if(ascend_result.dex > statMult) ascendCt++
-					if(ascend_result.agi > statMult) ascendCt++
-					if(ascend_result.hack > statMult) ascendCt++
-					if(ascend_result.cha > statMult) ascendCt++
-					if(ascendCt >= 2) {
-						if(debug){ns.tprint("DEBUG: Ascend Member: " + members[i])}
+					if (ascend_result.str > statMult) ascendCt++
+					if (ascend_result.def > statMult) ascendCt++
+					if (ascend_result.dex > statMult) ascendCt++
+					if (ascend_result.agi > statMult) ascendCt++
+					if (ascend_result.hack > statMult) ascendCt++
+					if (ascend_result.cha > statMult) ascendCt++
+					if (ascendCt >= 2) {
+						if (debug){ns.tprint("DEBUG: Ascend Member: " + members[i])}
 						ns.gang.ascendMember(members[i]);
 						await ns.sleep(100);
 						//Refresh stats after ascend
@@ -195,16 +192,17 @@ export async function main(ns) {
 			//At max gang, start setting territory warfare
 			if (!gangInfo.isHacking && members.length >= 12 && memberStats.str >= 650) {
 				//let chk_task = await terWarfare(members[i],i);
-				if ((ns.getServerMaxRam('home') - ns.getServerUsedRam('home')) > ns.getScriptRam('/src/gang-territory.js')) {
-					await ns.exec('/src/gang-territory.js', 'home', 1, members[i], i);
+				port = 2;
+				if (gangInfo.territory < territoryTarget && (ns.getServerMaxRam('home') - ns.getServerUsedRam('home')) > ns.getScriptRam('/src/gang-territory.js')) {
+					await ns.exec('/src/gang-territory.js', 'home', 1, port, members[i], i, territoryTarget);
 					//Waits until data is available in port
 					let portStatus = ns.getPortHandle(port);
 					while(portStatus.empty()) {
 						await ns.sleep(1000);
 					}
+					let chk_task = await ns.readPort(port);
+					if (chk_task != 'null') task = chk_task;
 				}
-				let chk_task = await ns.readPort(port);
-				if (chk_task != 'null') task = chk_task;
 			}
 			//Sets member task
 			ns.gang.setMemberTask(members[i], task);
@@ -218,16 +216,16 @@ export async function main(ns) {
 	async function getEquipNames() {
         var gangEquip = ns.gang.getEquipmentNames();
 		let gangInfo = ns.gang.getGangInformation();
-        for(let i = 0; i < gangEquip.length; i++) {
+        for (let i = 0; i < gangEquip.length; i++) {
             //ns.tprint(gangEquip[i]);
             //ns.tprint(ns.gang.getEquipmentType(gangEquip[i]));
-            if(ns.gang.getEquipmentType(gangEquip[i]) == 'Weapon') gangWep.push(gangEquip[i]);
-            if(ns.gang.getEquipmentType(gangEquip[i]) == 'Armor') gangArmor.push(gangEquip[i]);
-            if(ns.gang.getEquipmentType(gangEquip[i]) == 'Vehicle') gangVehicle.push(gangEquip[i]);
-            if(ns.gang.getEquipmentType(gangEquip[i]) == 'Rootkit') gangRootkit.push(gangEquip[i]);
+            if (ns.gang.getEquipmentType(gangEquip[i]) == 'Weapon') gangWep.push(gangEquip[i]);
+            if (ns.gang.getEquipmentType(gangEquip[i]) == 'Armor') gangArmor.push(gangEquip[i]);
+            if (ns.gang.getEquipmentType(gangEquip[i]) == 'Vehicle') gangVehicle.push(gangEquip[i]);
+            if (ns.gang.getEquipmentType(gangEquip[i]) == 'Rootkit') gangRootkit.push(gangEquip[i]);
             await ns.sleep(100);
         }
-		if(gangInfo.isHacking) {
+		if (gangInfo.isHacking) {
 			gangAugs.push("BitWire");
 			gangAugs.push("Neuralstimulator");
 			gangAugs.push("DataJack");
@@ -248,84 +246,84 @@ export async function main(ns) {
 	//getEquipNames() END
 	//equipUpgrade() Begin
 	async function equipUpgrade(memName) {
-		if(debug){ns.tprint('DEBUG: equipUpgrade() for : ' + memName)}
+		if (debug){ns.tprint('DEBUG: equipUpgrade() for : ' + memName)}
 		let memInfo = ns.gang.getMemberInformation(memName);
 		let gangInfo = ns.gang.getGangInformation();
-		if(gangInfo.isHacking) {
-			for(let i = gangRootkit.length; i >= 0; i--) {
-				if(memInfo.upgrades.includes(gangRootkit[i])) {
-					if(debug){ns.tprint(gangRootkit[i] + ' already equipped!')}
+		if (gangInfo.isHacking) {
+			for (let i = gangRootkit.length; i >= 0; i--) {
+				if (memInfo.upgrades.includes(gangRootkit[i])) {
+					if (debug){ns.tprint(gangRootkit[i] + ' already equipped!')}
 				}
-				else if(ns.gang.getEquipmentCost(gangRootkit[i]) <= (ns.getServerMoneyAvailable('home') / moneyReserveRatio)) {
-					if(debug){ns.tprint('DEBUG: equipUpgrade() buy item/name: '+ gangRootkit[i] + ' ' + memName)}
+				else if (ns.gang.getEquipmentCost(gangRootkit[i]) <= (ns.getServerMoneyAvailable('home') / moneyReserveRatio)) {
+					if (debug){ns.tprint('DEBUG: equipUpgrade() buy item/name: '+ gangRootkit[i] + ' ' + memName)}
 					ns.gang.purchaseEquipment(memName,gangRootkit[i]);
 				}
 				await ns.sleep(100);
 			}
 			await ns.sleep(100);
-			for(let i = gangAugs.length; i >= 0; i--) {
-				if(memInfo.upgrades.includes(gangAugs[i])) {
-					if(debug){ns.tprint(gangAugs[i] + ' already installed!')}
+			for (let i = gangAugs.length; i >= 0; i--) {
+				if (memInfo.upgrades.includes(gangAugs[i])) {
+					if (debug){ns.tprint(gangAugs[i] + ' already installed!')}
 				}
-				else if(ns.gang.getEquipmentCost(gangAugs[i]) <= (ns.getServerMoneyAvailable('home') / 4)) {
-					if(debug){ns.tprint('DEBUG: equipUpgrade() buy item/name: '+ gangAugs[i] + ' ' + memName)}
+				else if (ns.gang.getEquipmentCost(gangAugs[i]) <= (ns.getServerMoneyAvailable('home') / 4)) {
+					if (debug){ns.tprint('DEBUG: equipUpgrade() buy item/name: '+ gangAugs[i] + ' ' + memName)}
 					ns.gang.purchaseEquipment(memName,gangAugs[i]);
 				}
 				await ns.sleep(100);
 			}
 		} else {
-			for(let i = gangWep.length; i >= 0; i--) {
-				if(memInfo.upgrades.includes(gangWep[i])) {
-					if(debug){ns.tprint(gangWep[i] + ' already equipped!')}
+			for (let i = gangWep.length; i >= 0; i--) {
+				if (memInfo.upgrades.includes(gangWep[i])) {
+					if (debug){ns.tprint(gangWep[i] + ' already equipped!')}
 				}
-				else if(ns.gang.getEquipmentCost(gangWep[i]) <= (ns.getServerMoneyAvailable('home') / moneyReserveRatio)) {
-					if(debug){ns.tprint('DEBUG: equipUpgrade() buy item/name: '+ gangWep[i] + ' ' + memName)}
+				else if (ns.gang.getEquipmentCost(gangWep[i]) <= (ns.getServerMoneyAvailable('home') / moneyReserveRatio)) {
+					if (debug){ns.tprint('DEBUG: equipUpgrade() buy item/name: '+ gangWep[i] + ' ' + memName)}
 					ns.gang.purchaseEquipment(memName,gangWep[i]);
 				}
 				await ns.sleep(100);
 			}
 			await ns.sleep(100);
-			for(let i = gangArmor.length; i >= 0; i--) {
-				if(memInfo.upgrades.includes(gangArmor[i])) {
-					if(debug){ns.tprint(gangArmor[i] + ' already equipped!')}
+			for (let i = gangArmor.length; i >= 0; i--) {
+				if (memInfo.upgrades.includes(gangArmor[i])) {
+					if (debug){ns.tprint(gangArmor[i] + ' already equipped!')}
 				}
-				else if(ns.gang.getEquipmentCost(gangArmor[i]) <= (ns.getServerMoneyAvailable('home') / moneyReserveRatio)) {
-					if(debug){ns.tprint('DEBUG: equipUpgrade() buy item/name: '+ gangArmor[i] + ' ' + memName)}
+				else if (ns.gang.getEquipmentCost(gangArmor[i]) <= (ns.getServerMoneyAvailable('home') / moneyReserveRatio)) {
+					if (debug){ns.tprint('DEBUG: equipUpgrade() buy item/name: '+ gangArmor[i] + ' ' + memName)}
 					ns.gang.purchaseEquipment(memName,gangArmor[i]);
 				}
 				await ns.sleep(100);
 			}
 			await ns.sleep(100);
-			for(let i = gangVehicle.length; i >= 0; i--) {
-				if(memInfo.upgrades.includes(gangVehicle[i])) {
-					if(debug){ns.tprint(gangVehicle[i] + ' already equipped!')}
+			for (let i = gangVehicle.length; i >= 0; i--) {
+				if (memInfo.upgrades.includes(gangVehicle[i])) {
+					if (debug){ns.tprint(gangVehicle[i] + ' already equipped!')}
 				}
-				else if(ns.gang.getEquipmentCost(gangVehicle[i]) <= (ns.getServerMoneyAvailable('home') / moneyReserveRatio)) {
-					if(debug){ns.tprint('DEBUG: equipUpgrade() buy item/name: '+ gangVehicle[i] + ' ' + memName)}
+				else if (ns.gang.getEquipmentCost(gangVehicle[i]) <= (ns.getServerMoneyAvailable('home') / moneyReserveRatio)) {
+					if (debug){ns.tprint('DEBUG: equipUpgrade() buy item/name: '+ gangVehicle[i] + ' ' + memName)}
 					ns.gang.purchaseEquipment(memName,gangVehicle[i]);
 				}
 				await ns.sleep(100);
 			}
 			await ns.sleep(100);
-			for(let i = gangAugs.length; i >= 0; i--) {
-				if(memInfo.upgrades.includes(gangAugs[i])) {
-					if(debug){ns.tprint(gangAugs[i] + ' already installed!')}
+			for (let i = gangAugs.length; i >= 0; i--) {
+				if (memInfo.upgrades.includes(gangAugs[i])) {
+					if (debug){ns.tprint(gangAugs[i] + ' already installed!')}
 				}
-				else if(ns.gang.getEquipmentCost(gangAugs[i]) <= (ns.getServerMoneyAvailable('home') / 4)) {
-					if(debug){ns.tprint('DEBUG: equipUpgrade() buy item/name: '+ gangAugs[i] + ' ' + memName)}
+				else if (ns.gang.getEquipmentCost(gangAugs[i]) <= (ns.getServerMoneyAvailable('home') / 4)) {
+					if (debug){ns.tprint('DEBUG: equipUpgrade() buy item/name: '+ gangAugs[i] + ' ' + memName)}
 					ns.gang.purchaseEquipment(memName,gangAugs[i]);
 				}
 				await ns.sleep(100);
 			}
 			await ns.sleep(100);
-			if(memInfo.str > 400) {
+			if (memInfo.str > 400) {
 				//Only installs Rootkits if set to HTraff jobs
-				for(let i = gangRootkit.length; i >= 0; i--) {
-					if(memInfo.upgrades.includes(gangRootkit[i])) {
-						if(debug){ns.tprint(gangRootkit[i] + ' already equipped!')}
+				for (let i = gangRootkit.length; i >= 0; i--) {
+					if (memInfo.upgrades.includes(gangRootkit[i])) {
+						if (debug){ns.tprint(gangRootkit[i] + ' already equipped!')}
 					}
-					else if(ns.gang.getEquipmentCost(gangRootkit[i]) <= (ns.getServerMoneyAvailable('home') / moneyReserveRatio)) {
-						if(debug){ns.tprint('DEBUG: equipUpgrade() buy item/name: '+ gangRootkit[i] + ' ' + memName)}
+					else if (ns.gang.getEquipmentCost(gangRootkit[i]) <= (ns.getServerMoneyAvailable('home') / moneyReserveRatio)) {
+						if (debug){ns.tprint('DEBUG: equipUpgrade() buy item/name: '+ gangRootkit[i] + ' ' + memName)}
 						ns.gang.purchaseEquipment(memName,gangRootkit[i]);
 					}
 					await ns.sleep(100);
@@ -345,14 +343,14 @@ export async function main(ns) {
 		let avgWinChance = 0;
 		let totWinChance = 0;
 		let totalActiveGangs = 0;
-		for(let otherGang in otherGangs) {
-			if(otherGangs[otherGang].territory == 0 || otherGang == gangInfo.faction) continue;
+		for (let otherGang in otherGangs) {
+			if (otherGangs[otherGang].territory == 0 || otherGang == gangInfo.faction) continue;
 			let winChance = gangInfo.power / (gangInfo.power + otherGangs[otherGang].power);
 			totWinChance += winChance;
 			totalActiveGangs++;
 		}
 		avgWinChance = totWinChance / totalActiveGangs;
-		if(avgWinChance >= 0.65 && gangInfo.territory < territoryTarget) {
+		if (avgWinChance >= 0.65 && gangInfo.territory < territoryTarget) {
 			//Enable Warfare
 			ns.gang.setTerritoryWarfare(true);
 			if (memIndex == members.length - 1 || memIndex == members.length - 2 || memIndex == members.length - 3) {
