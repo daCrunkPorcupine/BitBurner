@@ -203,7 +203,7 @@ export async function main(ns) {
 						await ns.sleep(1000);
 					}
 				}
-				chk_task = await ns.readPort(port);
+				let chk_task = await ns.readPort(port);
 				if (chk_task != null || chk_task != 'null') task = chk_task;
 			}
 			//Sets member task
