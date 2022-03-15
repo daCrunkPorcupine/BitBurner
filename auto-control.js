@@ -27,7 +27,7 @@ const checkDataFile = "auto_serverscan_data.txt";
 const debug = false;
 
 //Player Servers
-const servername_prefix = 'jus';
+const servername_prefix = 'skynet';
 //IDEA: Pull max from ns.getBitNodeMultipliers()
 var player_server_max;
 
