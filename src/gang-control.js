@@ -204,7 +204,7 @@ export async function main(ns) {
 					}
 				}
 				let chk_task = await ns.readPort(port);
-				if (chk_task != null || chk_task != 'null') task = chk_task;
+				if (chk_task != 'null') task = chk_task;
 			}
 			//Sets member task
 			ns.gang.setMemberTask(members[i], task);

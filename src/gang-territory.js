@@ -27,6 +27,8 @@ export async function main(ns) {
 		ns.gang.setTerritoryWarfare(true);
 		if (memIndex == members.length - 1 || memIndex == members.length - 2 || memIndex == members.length - 3) {
 			jobTask = 'Territory Warfare';
+		} else {
+			jobTask = 'null';
 		}
 	} else {
 		ns.gang.setTerritoryWarfare(false);
@@ -34,6 +36,8 @@ export async function main(ns) {
 		//At max gang, start setting territory warfare
 		if (members.length >= 12 && memberStats.str >= 650 && gangInfo.territory < territoryTarget) {
 			jobTask = 'Territory Warfare';
+		} else {
+			jobTask = 'null';
 		}
 	}
 	port = 2;
