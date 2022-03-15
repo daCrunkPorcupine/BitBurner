@@ -40,7 +40,7 @@ export async function main(ns) {
 			killScript++;
 		}
 		await ns.sleep(100);
-		if (killScript == 5) break;
+		//if (killScript == 5) break;
 		await ns.sleep(1000);
 	}
 }
