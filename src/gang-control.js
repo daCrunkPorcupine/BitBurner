@@ -200,7 +200,7 @@ export async function main(ns) {
 					//Waits until data is available in port
 					let portStatus = ns.getPortHandle(port);
 					while(portStatus.empty()) {
-						sleep(1000);
+						await ns.sleep(1000);
 					}
 				}
 				chk_task = await ns.readPort(port);
