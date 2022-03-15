@@ -36,7 +36,7 @@ export async function main(ns) {
 			jobTask = 'Territory Warfare';
 		}
 	}
-	port = 1;
+	port = 2;
 	await ns.writePort(port,jobTask);
 	await ns.sleep(100);
 }

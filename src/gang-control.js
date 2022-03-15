@@ -198,7 +198,8 @@ export async function main(ns) {
 				if ((ns.getServerMaxRam('home') - ns.getServerUsedRam('home')) > ns.getScriptRam('/src/gang-territory.js')) {
 					await ns.exec('/src/gang-territory.js', 'home', 1, members[i], i);
 					//Waits until data is available in port
-					while(port.empty()) {
+					let portStatus = ns.getPortHandle(port);
+					while(portStatus.empty()) {
 						sleep(1000);
 					}
 				}

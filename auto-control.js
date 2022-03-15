@@ -648,7 +648,7 @@ export async function main(ns) {
         await ns.joinFaction('Netburners');
         await ns.sleep(100);
         await ns.joinFaction('Slum Snakes');
-        if (ns.getServerMaxRam('home') < 1024 && ns.getServerMoneyAvailable('home') > ns.getUpgradeHomeRamCost()) {
+        if (ns.getServerMaxRam('home') < 2048 && ns.getServerMoneyAvailable('home') > ns.getUpgradeHomeRamCost()) {
             ns.upgradeHomeRam();
         }
         if (focusRepGain) {
