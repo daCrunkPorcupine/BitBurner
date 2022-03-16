@@ -59,7 +59,9 @@ export async function main(ns) {
 			await checkGang();
 		} else {
 			//Runs gang functions
-			await getEquipNames();
+			if (gangWep.length == 0) {
+				await getEquipNames();
+			}
 			await ns.sleep(100);
 			await gangManager();
 			await ns.sleep(100);
