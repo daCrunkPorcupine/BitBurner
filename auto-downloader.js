@@ -74,6 +74,8 @@ export async function main(ns) {
     await ns.sleep(100);
     await ns.rm('api/singularity-exes.js');
     await ns.sleep(100);
+    ns.tprint('Auto-Executing auto-control.js');
+    ns.tprint('In auto-control.js - modify sub-modules from executing by altering constants under the //CONSTANTS section');
     ns.exec('auto-control.js', 'home', 1);
 
 }
