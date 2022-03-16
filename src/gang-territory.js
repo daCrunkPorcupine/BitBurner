@@ -40,7 +40,6 @@ export async function main(ns) {
 			jobTask = 'null';
 		}
 	}
-	port = 2;
 	await ns.writePort(port,jobTask);
 	await ns.sleep(100);
 }

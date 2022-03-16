@@ -1,5 +1,5 @@
 /** @param {import("..").NS } ns */
-const shockLimit = 90;
+const shockLimit = 99;
 const combatStatLimit = 50;
 export async function main(ns) {
     const useGang = ns.args[0];
@@ -8,6 +8,8 @@ export async function main(ns) {
         let sleeveStat = ns.sleeve.getSleeveStats(i);
         if (useGang && ns.heart.break() > -54001) {
             await sleeveGangPrep(ns,i);
+        } else {
+            ns.sleeve.setToCommitCrime(i,'Grand Theft Auto');
         }
         await ns.sleep(100);
     }
@@ -19,12 +21,16 @@ async function sleeveGangPrep(ns,sleeveIndex) {
     if (sleeveStat.shock > shockLimit) {
         ns.sleeve.setToShockRecovery(sleeveIndex);
     } else if (sleeveStat.strength < combatStatLimit) {
+        //if (ns.sleeve.getTask(i).gymStatType != 'Train Strength') {}
         ns.sleeve.setToGymWorkout(sleeveIndex,'Powerhouse Gym','Train Strength');
     } else if (sleeveStat.defense < combatStatLimit) {
+        //if (ns.sleeve.getTask(i).gymStatType != 'Train Defense') 
         ns.sleeve.setToGymWorkout(sleeveIndex,'Powerhouse Gym','Train Defense');
     } else if (sleeveStat.dexterity < combatStatLimit) {
-        ns.sleeve.setToGymWorkout(sleeveIndex,'Powerhouse Gym','Train Dexerity');
+        //if (ns.sleeve.getTask(i).gymStatType != 'Train Dexterity') 
+        ns.sleeve.setToGymWorkout(sleeveIndex,'Powerhouse Gym','Train Dexterity');
     } else if (sleeveStat.agility < combatStatLimit) {
+        //if (ns.sleeve.getTask(i).gymStatType != 'Train Agility') 
         ns.sleeve.setToGymWorkout(sleeveIndex,'Powerhouse Gym','Train Agility');
     } else {
         ns.sleeve.setToCommitCrime(sleeveIndex,'Homicide');

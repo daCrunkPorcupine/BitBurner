@@ -8,7 +8,7 @@ export async function main(ns) {
     if (ns.getPurchasedServers().length < player_server_max && ns.getServerMoneyAvailable('home') > ns.getPurchasedServerCost(ram_size)) {
         var player_server_count = ns.getPurchasedServers().length;
         for (var i = player_server_count; i < player_server_max; i++) {
-            var server_name = server_prefix + i;
+            var server_name = server_prefix + (i + 1);
             ns.purchaseServer((server_name), ram_size);
             await ns.sleep(100);
         }

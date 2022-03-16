@@ -49,7 +49,9 @@ var gangRootkit = [];
 var gangAugs = [];
 var port;
 var karma_level;
+
 export async function main(ns) {
+	ns.disableLog('ALL');
 	while (true) {
 		let gang_valid = ns.gang.inGang();
 		if (!gang_valid) {
@@ -69,8 +71,8 @@ export async function main(ns) {
 		if (!ns.gang.inGang() && ns.heart.break() <= -54000) {
 			if (debug){ns.tprint("DEBUG: No gang detected, creating gang")}
 			ns.gang.createGang('Slum Snakes');
-			await ns.sleep(100);
-			ns.gang.createGang('NiteSec');
+			/**await ns.sleep(100);
+			ns.gang.createGang('NiteSec') */
 			return true;
 		} else {
 			return false;
@@ -108,6 +110,8 @@ export async function main(ns) {
 			let memberStats = ns.gang.getMemberInformation(members[i]);
 			//Checks for possible Ascend
 			ascend_result = ns.gang.getAscensionResult(members[i]);
+			//IDEA: Hold ascend > 1m Rep until 12 members
+			//gangInfo.respect > 1m
 			if (ascend_result != null) {
 				//Ascend
 				if (gangInfo.isHacking && ascend_result.hack > statMult) {
@@ -255,7 +259,7 @@ export async function main(ns) {
 					if (debug){ns.tprint(gangRootkit[i] + ' already equipped!')}
 				}
 				else if (ns.gang.getEquipmentCost(gangRootkit[i]) <= (ns.getServerMoneyAvailable('home') / moneyReserveRatio)) {
-					if (debug){ns.tprint('DEBUG: equipUpgrade() buy item/name: '+ gangRootkit[i] + ' ' + memName)}
+					ns.print('equipUpgrade() buy item/name: '+ gangRootkit[i] + ' ' + memName)
 					ns.gang.purchaseEquipment(memName,gangRootkit[i]);
 				}
 				await ns.sleep(100);
@@ -266,7 +270,7 @@ export async function main(ns) {
 					if (debug){ns.tprint(gangAugs[i] + ' already installed!')}
 				}
 				else if (ns.gang.getEquipmentCost(gangAugs[i]) <= (ns.getServerMoneyAvailable('home') / 4)) {
-					if (debug){ns.tprint('DEBUG: equipUpgrade() buy item/name: '+ gangAugs[i] + ' ' + memName)}
+					ns.print('equipUpgrade() buy item/name: '+ gangAugs[i] + ' ' + memName)
 					ns.gang.purchaseEquipment(memName,gangAugs[i]);
 				}
 				await ns.sleep(100);
@@ -277,7 +281,7 @@ export async function main(ns) {
 					if (debug){ns.tprint(gangWep[i] + ' already equipped!')}
 				}
 				else if (ns.gang.getEquipmentCost(gangWep[i]) <= (ns.getServerMoneyAvailable('home') / moneyReserveRatio)) {
-					if (debug){ns.tprint('DEBUG: equipUpgrade() buy item/name: '+ gangWep[i] + ' ' + memName)}
+					ns.print('equipUpgrade() buy item/name: '+ gangWep[i] + ' ' + memName)
 					ns.gang.purchaseEquipment(memName,gangWep[i]);
 				}
 				await ns.sleep(100);
@@ -288,7 +292,7 @@ export async function main(ns) {
 					if (debug){ns.tprint(gangArmor[i] + ' already equipped!')}
 				}
 				else if (ns.gang.getEquipmentCost(gangArmor[i]) <= (ns.getServerMoneyAvailable('home') / moneyReserveRatio)) {
-					if (debug){ns.tprint('DEBUG: equipUpgrade() buy item/name: '+ gangArmor[i] + ' ' + memName)}
+					ns.print('equipUpgrade() buy item/name: '+ gangArmor[i] + ' ' + memName)
 					ns.gang.purchaseEquipment(memName,gangArmor[i]);
 				}
 				await ns.sleep(100);
@@ -299,7 +303,7 @@ export async function main(ns) {
 					if (debug){ns.tprint(gangVehicle[i] + ' already equipped!')}
 				}
 				else if (ns.gang.getEquipmentCost(gangVehicle[i]) <= (ns.getServerMoneyAvailable('home') / moneyReserveRatio)) {
-					if (debug){ns.tprint('DEBUG: equipUpgrade() buy item/name: '+ gangVehicle[i] + ' ' + memName)}
+					ns.print('equipUpgrade() buy item/name: '+ gangVehicle[i] + ' ' + memName)
 					ns.gang.purchaseEquipment(memName,gangVehicle[i]);
 				}
 				await ns.sleep(100);
@@ -310,7 +314,7 @@ export async function main(ns) {
 					if (debug){ns.tprint(gangAugs[i] + ' already installed!')}
 				}
 				else if (ns.gang.getEquipmentCost(gangAugs[i]) <= (ns.getServerMoneyAvailable('home') / 4)) {
-					if (debug){ns.tprint('DEBUG: equipUpgrade() buy item/name: '+ gangAugs[i] + ' ' + memName)}
+					ns.print('DEBUG: equipUpgrade() buy item/name: '+ gangAugs[i] + ' ' + memName)
 					ns.gang.purchaseEquipment(memName,gangAugs[i]);
 				}
 				await ns.sleep(100);
@@ -323,7 +327,7 @@ export async function main(ns) {
 						if (debug){ns.tprint(gangRootkit[i] + ' already equipped!')}
 					}
 					else if (ns.gang.getEquipmentCost(gangRootkit[i]) <= (ns.getServerMoneyAvailable('home') / moneyReserveRatio)) {
-						if (debug){ns.tprint('DEBUG: equipUpgrade() buy item/name: '+ gangRootkit[i] + ' ' + memName)}
+						ns.print('equipUpgrade() buy item/name: '+ gangRootkit[i] + ' ' + memName)
 						ns.gang.purchaseEquipment(memName,gangRootkit[i]);
 					}
 					await ns.sleep(100);

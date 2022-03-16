@@ -535,7 +535,7 @@ export async function main(ns) {
     //focusRep() Begin
     async function focusRep() {
         karma_level = ns.heart.break();
-        if(useGang && karma_level > -54001) {
+        if(useGang && karma_level >= -54001) {
             //Do nothing
         } else if(!ns.getPlayer().isWorking) {
             let playerFac = ns.getPlayer().factions;
@@ -567,7 +567,7 @@ export async function main(ns) {
         if (useGang) {
             if (!inBN2) {
                 karma_level = ns.heart.break();
-                if (karma_level > -54001) {
+                if (karma_level >= -54004) {
                     if (ns.isRunning('/src/gang-crime.js','home') == false) {
                         ns.exec('src/gang-crime.js', 'home');
                         await ns.sleep(100);
