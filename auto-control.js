@@ -602,7 +602,23 @@ export async function main(ns) {
             }
         }
         if (augInstalls && useGang && !augLoopComplete) {
-            await fnAugInstalls(ns);
+            if (ns.gang.getGangInformation().territory > 0.60) {
+                port = 3;
+                augPauseHacknet = true;
+                augPauseServers = true;
+                await ns.exec('/src/aug-purchase.js', 'home', 1, port);
+                //Checks if data is available in port
+                let portStatus = ns.getPortHandle(port);
+                //If data is returned from port, process
+                if (!portStatus.empty()) {
+                    let chk_port = await ns.readPort(port);
+                    if (chk_port == 'AugsComplete') augLoopComplete = true;
+        
+                }
+            }
+        } else if (augLoopComplete) {
+            augPauseHacknet = false;
+            augPauseServers = false;
         }
         if (!all_exes) {
             if(debug){ns.tprint("DEBUG: starting buyEXEs()")}
@@ -683,21 +699,4 @@ export async function main(ns) {
             scanner_task = 0;
         }
 	}
-}
-
-async function fnAugInstalls(ns) {
-    if (ns.gang.getGangInformation().territory > 0.60) {
-        port = 3;
-        augPauseHacknet = true;
-        augPauseServers = true;
-        await ns.exec('/src/aug-purchase.js', 'home', 1, port);
-        //Checks if data is available in port
-        let portStatus = ns.getPortHandle(port);
-        //If data is returned from port, process
-        if (!portStatus.empty()) {
-            let chk_port = await ns.readPort(port);
-            if (chk_port == 'AugsComplete') augLoopComplete = true;
-
-        }
-    }
 }
