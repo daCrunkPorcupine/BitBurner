@@ -7,6 +7,7 @@ const useBladerunner = false;
 const useHacking = true;
 const useServerBuy = true;
 const useSleeve = true;
+const augInstalls = true;
 const focusRepGain = true;
 //Hacking variables
 const weakenThreadPower = 0.05;
@@ -30,6 +31,10 @@ const debug = false;
 const servername_prefix = 'skynet';
 //IDEA: Pull max from ns.getBitNodeMultipliers()
 var player_server_max;
+//Variables for automatic Augmentation Installs
+var augPauseHacknet = false;
+var augPauseServers = false;
+var augLoopComplete = false;
 
 export async function main(ns) {
     //Executes all automation scripts
@@ -537,13 +542,18 @@ export async function main(ns) {
         karma_level = ns.heart.break();
         if(useGang && karma_level >= -54001) {
             //Do nothing
-        } else if(!ns.getPlayer().isWorking) {
+        } else if(!ns.getPlayer().isWorking || ns.getPlayer().currentWorkFactionName == 'CyberSec') {
             let playerFac = ns.getPlayer().factions;
             var facWork;
             if (playerFac.includes('Daedalus')) {
                 facWork = 'Daedalus';
             } else {
                 facWork = 'CyberSec'
+            }
+            if(facWork == 'Daedalus' && ns.getPlayer().currentWorkFactionName == 'CyberSec') {
+                ns.stopAction();
+                await ns.sleep(50);
+                ns.workForFaction(facWork,'Hacking Contracts');
             }
             ns.workForFaction(facWork,'Hacking Contracts');
         }
@@ -591,6 +601,9 @@ export async function main(ns) {
                 await ns.sleep(100);
             }
         }
+        if (augInstalls && useGang && !augLoopComplete) {
+            await fnAugInstalls(ns);
+        }
         if (!all_exes) {
             if(debug){ns.tprint("DEBUG: starting buyEXEs()")}
             all_exes = await buyEXEs();
@@ -625,11 +638,11 @@ export async function main(ns) {
             await AutoTarget(target_servers);
         }
 
-        if (useHacknet) {
+        if (useHacknet && !augPauseHacknet) {
             if(debug){ns.tprint("DEBUG: starting /src/hacknet-upgrade.js")}
             await ns.exec('/src/hacknet-upgrade.js','home',1,hacknetCostMax);
         }
-        if (useServerBuy && ns.getPurchasedServers().length != player_server_max) {
+        if (useServerBuy && ns.getPurchasedServers().length != player_server_max && !augPauseServers) {
             if(debug){ns.tprint("DEBUG: starting buyServers()")}
             if (ns.getServerMaxRam('home') >= 16384) {
                 var ram_size = 'MAX';
@@ -638,6 +651,7 @@ export async function main(ns) {
             }
             ns.exec('/src/buy-servers.js','home',1,servername_prefix,ram_size);
         }
+
         await runBackdoor();
         await sellHash();
         await ns.sleep(100);
@@ -669,4 +683,21 @@ export async function main(ns) {
             scanner_task = 0;
         }
 	}
+}
+
+async function fnAugInstalls(ns) {
+    if (ns.gang.getGangInformation().territory > 0.60) {
+        port = 3;
+        augPauseHacknet = true;
+        augPauseServers = true;
+        await ns.exec('/src/aug-purchase.js', 'home', 1, port);
+        //Checks if data is available in port
+        let portStatus = ns.getPortHandle(port);
+        //If data is returned from port, process
+        if (!portStatus.empty()) {
+            let chk_port = await ns.readPort(port);
+            if (chk_port == 'AugsComplete') augLoopComplete = true;
+
+        }
+    }
 }

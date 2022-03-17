@@ -15,10 +15,12 @@ const filesroot = [
   'auto-weaken.js',
   'auto-hack.js',
   'auto-phattarget.js',
+  'auto-exec.js',
 ]
 const filessource = [
   'singularity-tor.js',
   'singularity-exes.js',
+  'aug-purchase.js',
   'auto-share.js',
   'buy-servers.js',
   'gang-control.js',

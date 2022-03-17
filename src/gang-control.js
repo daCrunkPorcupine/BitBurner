@@ -52,6 +52,8 @@ var karma_level;
 
 export async function main(ns) {
 	ns.disableLog('ALL');
+	//disableLogs(ns, ['getServerMoneyAvailable']);
+
 	while (true) {
 		let gang_valid = ns.gang.inGang();
 		if (!gang_valid) {
