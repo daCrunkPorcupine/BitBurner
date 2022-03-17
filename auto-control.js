@@ -554,8 +554,10 @@ export async function main(ns) {
                 ns.stopAction();
                 await ns.sleep(50);
                 ns.workForFaction(facWork,'Hacking Contracts');
+            } else {
+                if (!ns.getPlayer().isWorking) ns.workForFaction(facWork,'Hacking Contracts');
             }
-            ns.workForFaction(facWork,'Hacking Contracts');
+            
         }
     }
     //focusRep() END
