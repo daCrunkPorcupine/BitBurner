@@ -602,7 +602,9 @@ export async function main(ns) {
             }
         }
         if (augInstalls && useGang && !augLoopComplete) {
-            if (ns.gang.getGangInformation().territory > 0.60) {
+            if (!ns.gang.inGang()) {
+                //Skips
+            } else if (ns.gang.getGangInformation().territory > 0.60) {
                 port = 3;
                 augPauseHacknet = true;
                 augPauseServers = true;
