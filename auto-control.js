@@ -14,7 +14,7 @@ const weakenThreadPower = 0.05;
 const growthThreadIncrease = 0.004;
 const hackThreadIncrease = 0.002;
 //Hacknet variables
-const hacknetCostMax = 35000000;
+const hacknetCostMax = 27000000;
 
 var all_exes = false;
 var port;
@@ -605,10 +605,11 @@ export async function main(ns) {
             if (!ns.gang.inGang()) {
                 //Skips
             } else if (ns.gang.getGangInformation().territory > 0.60) {
+                let augTask = 'hacking';
                 port = 3;
                 augPauseHacknet = true;
                 augPauseServers = true;
-                await ns.exec('/src/aug-purchase.js', 'home', 1, port);
+                await ns.exec('/src/aug-purchase.js', 'home', 1, port, augTask);
                 //Checks if data is available in port
                 let portStatus = ns.getPortHandle(port);
                 //If data is returned from port, process
@@ -694,6 +695,9 @@ export async function main(ns) {
             if(debug){ns.tprint("DEBUG: starting focusRep()")}
             await focusRep();
         }
+        if ((ns.getPlayer().factions).includes('Daedalus')) {
+            await fnEndGame(ns);
+        }
         //Appends increment to scanner task if we skip scan on every pass                
         await ns.sleep(150);
         scanner_task++;
@@ -701,4 +705,16 @@ export async function main(ns) {
             scanner_task = 0;
         }
 	}
+}
+
+async function fnEndGame(ns) {
+    //Checks for 'The Red Pill' rep
+    if (ns.getAugmentationRepReq('The Red Pill') <= (ns.getFactionRep('Daedalus') + ns.getPlayer().workRepGained)) {
+        port = 3;
+        ns.stopAction();
+        ns.purchaseAugmentation('Daedalus','The Red Pill');
+        await ns.exec('/src/aug-purchase.js', 'home', 1, port, 'neuroflux');
+        await ns.sleep(30000);
+        ns.installAugmentations('auto-exec.js');
+    }
 }

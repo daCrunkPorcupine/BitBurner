@@ -69,14 +69,19 @@ var augLoop = 1;
 
 export async function main(ns) {
     const port = ns.args[0];
+    const augTask = ns.args[1];
     ns.disableLog('ALL');
     augPlayerOwned = ns.getOwnedAugmentations();
-    var augCategory = 'hacking';
-    ns.tail('/src/aug-purchase.js', 'home', port);
+    ns.tail('/src/aug-purchase.js', 'home', port, augTask);
     
     //Check for augments available first
     //If augSorted == 0, there are no augments left to install, return data to port for auto-control.js to stop calling
-    await augSorting(ns,augCategory);
+    if (augTask != 'neuroflux') {
+        await augSorting(ns,augTask);
+    } else {
+        augLoop = 0;
+        await augNeuroflux(ns);
+    }
     if (augSorted.length == 0) {
         await ns.writePort(port,'AugsComplete');
         augLoop = 0;
@@ -84,8 +89,8 @@ export async function main(ns) {
     while (augLoop == 1) {
         //Clears variables for loop
         augSorted = [];
-        await augSorting(ns,augCategory);
-        await augPurchase(ns);
+        await augSorting(ns,augTask);
+        await augPurchase(ns,augTask);
         if (augSorted.length == 0) {
             let timeStamp = localeHHMMSS();
             ns.tprint(timeStamp + ': aug-purchase.js completed')
@@ -105,10 +110,10 @@ export async function main(ns) {
     }
 }
 
-async function augSorting(ns,augCategory) {
+async function augSorting(ns,augTask) {
     augPlayerOwned = ns.getOwnedAugmentations();
     augAvailable = ns.getAugmentationsFromFaction(ns.gang.getGangInformation().faction);
-    if (augCategory == 'hacking') {
+    if (augTask == 'hacking') {
         for (let i = 0; i < augAvailable.length; i++) {
             augCost = ns.getAugmentationPrice(augAvailable[i]);
             augRep = ns.getAugmentationRepReq(augAvailable[i]);
@@ -122,18 +127,20 @@ async function augSorting(ns,augCategory) {
     augSorted.sort(function(a, b){return a.augCost-b.augCost});
 }
 
-async function augPurchase(ns) {
-    for (let i = 0; i < augSorted.length; i++) {
-        if (ns.getServerMoneyAvailable('home') > ns.getAugmentationPrice(augSorted[i]['aug'])) {
-            try {
-                ns.purchaseAugmentation(ns.gang.getGangInformation().faction,augSorted[i]['aug']);
-                augPendingInstall.push(augSorted[i]['aug'])
-                ns.print('Purchasing Augmentation: ' + augSorted[i]['aug']);
-            } catch {
+async function augPurchase(ns,augTask) {
+    if (augTask == 'hacking') {
+        for (let i = 0; i < augSorted.length; i++) {
+            if (ns.getServerMoneyAvailable('home') > ns.getAugmentationPrice(augSorted[i]['aug'])) {
+                try {
+                    ns.purchaseAugmentation(ns.gang.getGangInformation().faction,augSorted[i]['aug']);
+                    augPendingInstall.push(augSorted[i]['aug'])
+                    ns.print('Purchasing Augmentation: ' + augSorted[i]['aug']);
+                } catch {
 
+                }
             }
+            await ns.sleep(50);
         }
-        await ns.sleep(50);
     }
 }
 
