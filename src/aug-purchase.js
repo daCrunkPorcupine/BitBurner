@@ -97,7 +97,7 @@ export async function main(ns) {
             await ns.sleep(100);
             await augNeuroflux(ns);
             ns.installAugmentations('auto-exec.js');
-        } else if (augSorted[0]['augCost'] > (ns.getServerMoneyAvailable('home') * 2) && augPendingInstall.length > 5) {
+        } else if (augSorted[0]['augCost'] > (ns.getServerMoneyAvailable('home') * 1.6) && augPendingInstall.length > 5) {
             //Dumps any remaining money into NeuroFlux
             await augNeuroflux(ns);
             ns.installAugmentations('auto-exec.js');
