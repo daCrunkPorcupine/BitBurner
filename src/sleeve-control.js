@@ -9,7 +9,7 @@ export async function main(ns) {
         if (useGang && ns.heart.break() > -54001) {
             await sleeveGangPrep(ns,i);
         } else {
-            ns.sleeve.setToCommitCrime(i,'Grand Theft Auto');
+            ns.sleeve.setToCommitCrime(i,'Homicide');
         }
         await ns.sleep(100);
     }

@@ -9,12 +9,14 @@ const useServerBuy = true;
 const useSleeve = true;
 const augInstalls = true;
 const focusRepGain = true;
-//Hacking variables
+//Hacking
 const weakenThreadPower = 0.05;
 const growthThreadIncrease = 0.004;
 const hackThreadIncrease = 0.002;
-//Hacknet variables
+//Hacknet
 const hacknetCostMax = 27000000;
+//Other variables
+const favorBase = 150; //Base of favor required to donate to factions
 
 var all_exes = false;
 var port;
@@ -606,7 +608,7 @@ export async function main(ns) {
         if (augInstalls && useGang && !augLoopComplete) {
             if (!ns.gang.inGang()) {
                 //Skips
-            } else if (ns.gang.getGangInformation().territory > 0.60) {
+            } else if (ns.gang.getGangInformation().territory > 0.30) {
                 let augTask = 'hacking';
                 port = 3;
                 augPauseHacknet = true;
@@ -690,7 +692,7 @@ export async function main(ns) {
         await ns.joinFaction('Netburners');
         await ns.sleep(100);
         await ns.joinFaction('Slum Snakes');
-        if (ns.getServerMaxRam('home') < 2048 && ns.getServerMoneyAvailable('home') > ns.getUpgradeHomeRamCost()) {
+        if (ns.getServerMaxRam('home') < 4096 && ns.getServerMoneyAvailable('home') > ns.getUpgradeHomeRamCost()) {
             ns.upgradeHomeRam();
         }
         if (focusRepGain) {
@@ -710,6 +712,31 @@ export async function main(ns) {
 }
 
 async function fnEndGame(ns) {
+    //ns.getFactionFavorGain('Daedalus')
+    let bnFavorMult = ns.getBitNodeMultipliers().RepToDonateToFaction;
+    let totalFavor = ns.getFactionFavorGain('Daedalus') + ns.getFactionFavor('Daedalus');
+    if (ns.getFactionFavor('Daedalus') >= ((bnFavorMult * 150) + 1)) {
+        //Donate Loop
+        let donateFunds = ns.getServerMoneyAvailable('home');
+        await ns.sleep(100);
+        ns.donateToFaction('Daedalus',donateFunds);
+    } else {
+        if (totalFavor >= ((bnFavorMult * 150) + 1)) {
+            //Reset to prep for donations
+            port = 3;
+            ns.stopAction();
+            ns.purchaseAugmentation('Daedalus','The Red Pill');
+            await ns.exec('/src/aug-purchase.js', 'home', 1, port, 'neuroflux');
+            await ns.sleep(30000);
+            ns.installAugmentations('auto-exec.js');
+        } else if (ns.getPlayer().workRepGained >= 50000) {
+            //Stops & Restarts work for next favor check
+            ns.stopAction();
+            await ns.sleep(250);
+            if (!ns.getPlayer().isWorking) ns.workForFaction('Daedalus','Hacking Contracts');
+        }
+    }
+
     //Checks for 'The Red Pill' rep
     if (ns.getAugmentationRepReq('The Red Pill') <= (ns.getFactionRep('Daedalus') + ns.getPlayer().workRepGained)) {
         port = 3;
@@ -719,4 +746,10 @@ async function fnEndGame(ns) {
         await ns.sleep(30000);
         ns.installAugmentations('auto-exec.js');
     }
+}
+
+async function augLoops(ns) {
+    //IDEA: Trigger augment installs based on gang territory progress for income tiers
+    //Reputation Augs first
+    //Hacknet Augs second (test ROI profits w/ Neuroflux loops)
 }

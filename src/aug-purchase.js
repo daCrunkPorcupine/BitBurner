@@ -4,6 +4,7 @@ const augRepGain = [
     'ADR-V2 Pheromone Gene',
     "The Shadow's Simulacrum",
     'Social Negotiation Assistant (S.N.A)',
+    'Neuroreceptor Management Implant',
 ]
 const augHacknet = [
     'Hacknet Node Core Direct-Neural Interface',
@@ -58,6 +59,11 @@ const augHacking = [
     'DataJack',
     'Embedded Netburner Module Direct Memory Access Upgrade',
     'CashRoot Starter Kit',
+    'ADR-V1 Pheromone Gene', //Rep item, remove once trigger updated for 'augRepGain'
+    'ADR-V2 Pheromone Gene', //Rep item, remove once trigger updated for 'augRepGain'
+    "The Shadow's Simulacrum", //Rep item, remove once trigger updated for 'augRepGain'
+    'Social Negotiation Assistant (S.N.A)', //Rep item, remove once trigger updated for 'augRepGain'
+    'Neuroreceptor Management Implant', //Rep item, remove once trigger updated for 'augRepGain'
 ]
 var augPendingInstall = [];
 var augPlayerOwned = [];
@@ -82,12 +88,13 @@ export async function main(ns) {
         augLoop = 0;
         await augNeuroflux(ns);
     }
-    if (augSorted.length == 0) {
+    if (augSorted.length == 0 && augPlayerOwned.length >= augHacking.length) {
         await ns.writePort(port,'AugsComplete');
         augLoop = 0;
     }
     while (augLoop == 1) {
         //Clears variables for loop
+        augPlayerOwned = ns.getOwnedAugmentations();
         augSorted = [];
         await augSorting(ns,augTask);
         await augPurchase(ns,augTask);
@@ -97,13 +104,13 @@ export async function main(ns) {
             await ns.sleep(100);
             await augNeuroflux(ns);
             ns.installAugmentations('auto-exec.js');
-        } else if (augSorted[0]['augCost'] > (ns.getServerMoneyAvailable('home') * 1.6) && augPendingInstall.length > 5) {
+        } else if (augSorted[0]['augCost'] > (ns.getServerMoneyAvailable('home') * 1.6) && augPendingInstall.length >= 3) {
             //Dumps any remaining money into NeuroFlux
             await augNeuroflux(ns);
             ns.installAugmentations('auto-exec.js');
         }
-        ns.print('augSorted: ');
-        ns.print(augSorted);
+        ns.print('augSorted[0]: ');
+        ns.print(augSorted[0]);
         ns.print('augPendingInstall: ');
         ns.print(augPendingInstall);
         await ns.sleep(60000);
@@ -119,7 +126,7 @@ async function augSorting(ns,augTask) {
             augRep = ns.getAugmentationRepReq(augAvailable[i]);
             //phat_targets.push({"servername":targets[i],"value":server_value});
             if (augHacking.includes(augAvailable[i]) && !augPlayerOwned.includes(augAvailable[i]) && !augPendingInstall.includes(augAvailable[i])) {
-                augSorted.push({'aug':augAvailable[i],'augCost':augCost,'augRep':augRep});
+                if (ns.getFactionRep(ns.gang.getGangInformation().faction) >= augRep) augSorted.push({'aug':augAvailable[i],'augCost':augCost,'augRep':augRep});
             }
             await ns.sleep(50);
         }            
@@ -165,6 +172,7 @@ async function augNeuroflux(ns) {
         }
         await ns.sleep(100);
     }
+    await ns.sleep(10000);
 }
 
 function localeHHMMSS(ms = 0) {
