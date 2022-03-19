@@ -715,7 +715,7 @@ async function fnEndGame(ns) {
     //ns.getFactionFavorGain('Daedalus')
     let bnFavorMult = ns.getBitNodeMultipliers().RepToDonateToFaction;
     let totalFavor = ns.getFactionFavorGain('Daedalus') + ns.getFactionFavor('Daedalus');
-    if (ns.getFactionFavor('Daedalus') >= ((bnFavorMult * 150) + 1)) {
+    if (ns.getFactionFavor('Daedalus') >= ((bnFavorMult * 150) + 1) && !ns.getOwnedAugmentations().includes('The Red Pill')) {
         //Donate Loop
         let donateFunds = ns.getServerMoneyAvailable('home');
         await ns.sleep(100);

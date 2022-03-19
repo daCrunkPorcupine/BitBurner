@@ -100,7 +100,7 @@ export async function main(ns) {
         await augPurchase(ns,augTask);
         if (augSorted.length == 0) {
             let timeStamp = localeHHMMSS();
-            ns.tprint(timeStamp + ': aug-purchase.js completed')
+            ns.print(timeStamp + ': aug-purchase.js completed')
             await ns.sleep(100);
             await augNeuroflux(ns);
             ns.installAugmentations('auto-exec.js');
