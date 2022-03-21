@@ -450,7 +450,7 @@ export async function main(ns) {
         }
         if (ns.hasRootAccess('w0r1d_d43m0n') == true) {
             await ns.exec('src/server-search.js','home',1,'w0r1d_d43m0n');
-            await ns.sleep(150);
+            await ns.sleep(60000);
         }
         
     }
