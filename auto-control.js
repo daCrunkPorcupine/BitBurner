@@ -605,6 +605,7 @@ export async function main(ns) {
                 await ns.sleep(100);
             }
         }
+        //IDEA: Add trigger if hacking > worlddaemon hack level then trigger augLoopComplete = true;
         if (augInstalls && useGang && !augLoopComplete) {
             if (!ns.gang.inGang()) {
                 //Skips
@@ -715,36 +716,40 @@ async function fnEndGame(ns) {
     //ns.getFactionFavorGain('Daedalus')
     let bnFavorMult = ns.getBitNodeMultipliers().RepToDonateToFaction;
     let totalFavor = ns.getFactionFavorGain('Daedalus') + ns.getFactionFavor('Daedalus');
-    if (ns.getFactionFavor('Daedalus') >= ((bnFavorMult * 150) + 1) && !ns.getOwnedAugmentations().includes('The Red Pill')) {
-        //Donate Loop
-        let donateFunds = ns.getServerMoneyAvailable('home');
-        await ns.sleep(100);
-        ns.donateToFaction('Daedalus',donateFunds);
-    } else {
-        if (totalFavor >= ((bnFavorMult * 150) + 1)) {
-            //Reset to prep for donations
+    if (!ns.getOwnedAugmentations().includes('The Red Pill')) {
+        if (ns.getFactionFavor('Daedalus') >= ((bnFavorMult * 150) + 1)) {
+            //Donate Loop
+            let donateFunds = ns.getServerMoneyAvailable('home');
+            await ns.sleep(100);
+            ns.donateToFaction('Daedalus',donateFunds);
+        } else {
+            if (totalFavor >= ((bnFavorMult * 150) + 1)) {
+                //Reset to prep for donations
+                port = 3;
+                ns.stopAction();
+                ns.purchaseAugmentation('Daedalus','The Red Pill');
+                await ns.exec('/src/aug-purchase.js', 'home', 1, port, 'neuroflux');
+                await ns.sleep(30000);
+                ns.installAugmentations('auto-exec.js');
+            } else if (ns.getPlayer().workRepGained >= 50000) {
+                //Stops & Restarts work for next favor check
+                ns.stopAction();
+                await ns.sleep(250);
+                if (!ns.getPlayer().isWorking) ns.workForFaction('Daedalus','Hacking Contracts');
+            }
+        }
+
+        //Checks for 'The Red Pill' rep
+        if (ns.getAugmentationRepReq('The Red Pill') <= (ns.getFactionRep('Daedalus') + ns.getPlayer().workRepGained)) {
             port = 3;
             ns.stopAction();
             ns.purchaseAugmentation('Daedalus','The Red Pill');
             await ns.exec('/src/aug-purchase.js', 'home', 1, port, 'neuroflux');
             await ns.sleep(30000);
             ns.installAugmentations('auto-exec.js');
-        } else if (ns.getPlayer().workRepGained >= 50000) {
-            //Stops & Restarts work for next favor check
-            ns.stopAction();
-            await ns.sleep(250);
-            if (!ns.getPlayer().isWorking) ns.workForFaction('Daedalus','Hacking Contracts');
         }
-    }
-
-    //Checks for 'The Red Pill' rep
-    if (ns.getAugmentationRepReq('The Red Pill') <= (ns.getFactionRep('Daedalus') + ns.getPlayer().workRepGained)) {
-        port = 3;
-        ns.stopAction();
-        ns.purchaseAugmentation('Daedalus','The Red Pill');
-        await ns.exec('/src/aug-purchase.js', 'home', 1, port, 'neuroflux');
-        await ns.sleep(30000);
-        ns.installAugmentations('auto-exec.js');
+    } else {
+        augLoopComplete = true;
     }
 }
 
