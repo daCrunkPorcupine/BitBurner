@@ -697,8 +697,11 @@ export async function main(ns) {
             ns.upgradeHomeRam();
         }
         if (focusRepGain) {
-            if(debug){ns.tprint("DEBUG: starting focusRep()")}
-            await focusRep();
+            if ((ns.getPlayer().factions).includes('Daedalus') || (ns.getPlayer().factions).includes('CyberSec')) {
+                if(debug){ns.tprint("DEBUG: starting focusRep()")}
+                await focusRep();
+            }
+
         }
         if ((ns.getPlayer().factions).includes('Daedalus')) {
             await fnEndGame(ns);
