@@ -98,7 +98,10 @@ export async function main(ns) {
         augSorted = [];
         await augSorting(ns,augTask);
         await augPurchase(ns,augTask);
-        if (augSorted.length == 0) {
+        if (augTask == 'hacking') {
+            var compareArray = augHacking;
+        }
+        if (augSorted.length == 0 && augPlayerOwned.length >= compareArray.length) {
             let timeStamp = localeHHMMSS();
             ns.print(timeStamp + ': aug-purchase.js completed')
             await ns.sleep(100);
