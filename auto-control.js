@@ -45,6 +45,9 @@ export async function main(ns) {
     var target_servers = [];
     var botnet_list = [];
     player_server_max = ns.getPurchasedServerLimit();
+    const bitnodeMultipliers = ns.getBitNodeMultipliers();
+    const daemonDifficulty = 3000 * bitnodeMultipliers.WorldDaemonDifficulty;
+
 	ns.rm(checkDataFile);
 	await ns.write(checkDataFile, "n00dles", "w");
     //RAM usage limit % for calling individual targets
@@ -578,6 +581,12 @@ export async function main(ns) {
         }
         **/
         //Control script calls
+        if (ns.getPlayer().hacking >= daemonDifficulty && ns.getOwnedAugmentations().includes('The Red Pill')) {
+            await ns.exec('src/server-search.js','home',1,'w0r1d_d43m0n');
+            await ns.sleep(60000);
+            //ns.killall();
+        }
+
         if (useGang) {
             if (!inBN2) {
                 karma_level = ns.heart.break();

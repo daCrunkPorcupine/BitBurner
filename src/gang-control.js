@@ -234,21 +234,21 @@ export async function main(ns) {
             await ns.sleep(100);
         }
 		if (gangInfo.isHacking) {
-			gangAugs.push("BitWire");
-			gangAugs.push("Neuralstimulator");
-			gangAugs.push("DataJack");
+			gangAugs.push('BitWire');
+			gangAugs.push('Neuralstimulator');
+			gangAugs.push('DataJack');
 		} else {
-			gangAugs.push("Bionic Arms");
-			gangAugs.push("Bionic Legs");
-			gangAugs.push("Bionic Spine");
-			gangAugs.push("BrachiBlades");
-			gangAugs.push("Nanofiber Weave");
-			gangAugs.push("Synthetic Heart");
-			gangAugs.push("Synfibril Muscle");
-			gangAugs.push("Graphene Bone Lacings");
-			gangAugs.push("BitWire");
-			gangAugs.push("Neuralstimulator");
-			gangAugs.push("DataJack");
+			gangAugs.push('Bionic Arms');
+			gangAugs.push('Bionic Legs');
+			gangAugs.push('Bionic Spine');
+			gangAugs.push('BrachiBlades');
+			gangAugs.push('Nanofiber Weave');
+			gangAugs.push('Synthetic Heart');
+			gangAugs.push('Synfibril Muscle');
+			gangAugs.push('Graphene Bone Lacings');
+			gangAugs.push('BitWire');
+			gangAugs.push('Neuralstimulator');
+			gangAugs.push('DataJack');
 		}
     }
 	//getEquipNames() END
