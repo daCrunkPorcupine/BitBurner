@@ -258,7 +258,7 @@ export async function main(ns) {
 		let memInfo = ns.gang.getMemberInformation(memName);
 		let gangInfo = ns.gang.getGangInformation();
 		if (gangInfo.isHacking) {
-			for (let i = gangRootkit.length; i >= 0; i--) {
+			for (let i = 0; i < gangRootkit.length; i++) {
 				if (memInfo.upgrades.includes(gangRootkit[i])) {
 					if (debug){ns.tprint(gangRootkit[i] + ' already equipped!')}
 				}
@@ -269,7 +269,7 @@ export async function main(ns) {
 				await ns.sleep(100);
 			}
 			await ns.sleep(100);
-			for (let i = gangAugs.length; i >= 0; i--) {
+			for (let i = 0; i < gangAugs.length; i++) {
 				if (memInfo.upgrades.includes(gangAugs[i])) {
 					if (debug){ns.tprint(gangAugs[i] + ' already installed!')}
 				}
@@ -280,7 +280,7 @@ export async function main(ns) {
 				await ns.sleep(100);
 			}
 		} else {
-			for (let i = gangWep.length; i >= 0; i--) {
+			for (let i = 0; i < gangWep.length; i++) {
 				if (memInfo.upgrades.includes(gangWep[i])) {
 					if (debug){ns.tprint(gangWep[i] + ' already equipped!')}
 				}
@@ -291,7 +291,7 @@ export async function main(ns) {
 				await ns.sleep(100);
 			}
 			await ns.sleep(100);
-			for (let i = gangArmor.length; i >= 0; i--) {
+			for (let i = 0; i < gangArmor.length; i++) {
 				if (memInfo.upgrades.includes(gangArmor[i])) {
 					if (debug){ns.tprint(gangArmor[i] + ' already equipped!')}
 				}
@@ -302,7 +302,7 @@ export async function main(ns) {
 				await ns.sleep(100);
 			}
 			await ns.sleep(100);
-			for (let i = gangVehicle.length; i >= 0; i--) {
+			for (let i = 0; i < gangVehicle.length; i++) {
 				if (memInfo.upgrades.includes(gangVehicle[i])) {
 					if (debug){ns.tprint(gangVehicle[i] + ' already equipped!')}
 				}
@@ -313,7 +313,7 @@ export async function main(ns) {
 				await ns.sleep(100);
 			}
 			await ns.sleep(100);
-			for (let i = gangAugs.length; i >= 0; i--) {
+			for (let i = 0; i < gangAugs.length; i++) {
 				if (memInfo.upgrades.includes(gangAugs[i])) {
 					if (debug){ns.tprint(gangAugs[i] + ' already installed!')}
 				}
@@ -326,7 +326,7 @@ export async function main(ns) {
 			await ns.sleep(100);
 			if (memInfo.str > 400) {
 				//Only installs Rootkits if set to HTraff jobs
-				for (let i = gangRootkit.length; i >= 0; i--) {
+				for (let i = 0; i < gangRootkit.length; i++) {
 					if (memInfo.upgrades.includes(gangRootkit[i])) {
 						if (debug){ns.tprint(gangRootkit[i] + ' already equipped!')}
 					}
