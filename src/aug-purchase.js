@@ -88,7 +88,7 @@ export async function main(ns) {
         augLoop = 0;
         await augNeuroflux(ns);
     }
-    if (augSorted.length == 0 && augPlayerOwned.length >= augHacking.length) {
+    if (augSorted.length == 0 && augPlayerOwned.length >= 45) {
         await ns.writePort(port,'AugsComplete');
         augLoop = 0;
     }
